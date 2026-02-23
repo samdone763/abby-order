@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Abby Cake & Bites — Order Now</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --cream: #fdf6ee; --blush: #e8a898; --rose: #c97b6a;
+    --brown: #3d1f0f; --soft: #f5ede4; --green: #4caf50; --red: #e53935;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: var(--brown); min-height: 100vh; }
+
+  nav { background: white; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 12px rgba(0,0,0,0.06); position: sticky; top: 0; z-index: 100; }
+  .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--brown); }
+  .nav-status { background: #fee2e2; color: #b91c1c; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+  .nav-status.open { background: #dcfce7; color: #15803d; }
+
+  .hero { background: linear-gradient(135deg, #fdf0e8 0%, #fce4d6 100%); padding: 50px 20px 40px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 70% 30%, rgba(232,168,152,0.3) 0%, transparent 60%); }
+  .hero-tag { display: inline-block; border: 1px solid var(--blush); color: var(--rose); padding: 5px 16px; border-radius: 20px; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.4rem; line-height: 1.2; margin-bottom: 12px; }
+  .hero h1 span { color: var(--rose); font-style: italic; }
+  .hero p { color: #8a6555; font-size: 0.95rem; max-width: 300px; margin: 0 auto 24px; line-height: 1.6; }
+  .hero-btn { background: var(--rose); color: white; border: none; padding: 14px 32px; border-radius: 30px; font-size: 1rem; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.3s; }
+  .hero-btn:hover { background: var(--brown); transform: translateY(-2px); }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; }
+  .info-card { background: white; border-radius: 16px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .info-icon { font-size: 1.4rem; margin-bottom: 6px; }
+  .info-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--rose); font-weight: 500; margin-bottom: 4px; }
+  .info-value { font-size: 0.85rem; font-weight: 500; color: var(--brown); line-height: 1.4; }
+
+  .section-title { padding: 24px 20px 8px; }
+  .section-title h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; }
+  .section-title p { color: #8a6555; font-size: 0.85rem; margin-top: 4px; }
+
+  .menu-grid { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .menu-item { background: white; border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+  .menu-item:hover, .menu-item.selected { border-color: var(--blush); background: #fff8f5; }
+  .menu-item-left { display: flex; align-items: center; gap: 12px; }
+  .menu-emoji { font-size: 1.8rem; }
+  .menu-name { font-weight: 500; font-size: 0.95rem; }
+  .menu-desc { font-size: 0.75rem; color: #8a6555; margin-top: 2px; }
+  .menu-price { font-weight: 700; color: var(--rose); font-size: 1rem; }
+  .menu-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--blush); display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .menu-item.selected .menu-check { background: var(--rose); border-color: var(--rose); color: white; font-size: 0.7rem; }
+
+  .order-section { padding: 0 20px 100px; }
+  .payment-box { background: linear-gradient(135deg, #fff3e0, #fce4d6); border: 2px solid var(--blush); border-radius: 20px; padding: 20px; margin-bottom: 16px; }
+  .payment-box h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 12px; }
+  .payment-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .step-num { background: var(--rose); color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .step-text { font-size: 0.85rem; line-height: 1.5; color: var(--brown); }
+  .step-text strong { color: var(--rose); }
+  .payment-methods { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .pay-badge { background: white; border: 1px solid var(--blush); border-radius: 8px; padding: 4px 10px; font-size: 0.75rem; font-weight: 500; }
+  .amount-display { background: white; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; text-align: center; border: 1px dashed var(--blush); }
+  .amount-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #8a6555; }
+  .amount-value { font-size: 1.4rem; font-weight: 700; color: var(--rose); font-family: 'Playfair Display', serif; }
+  .amount-note { font-size: 0.72rem; color: #8a6555; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 0.8rem; font-weight: 500; color: var(--brown); margin-bottom: 6px; display: block; }
+  .form-input, .form-textarea { width: 100%; padding: 12px 14px; border: 1.5px solid #e8d5c8; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--brown); background: white; outline: none; transition: border-color 0.2s; }
+  .form-input:focus, .form-textarea:focus { border-color: var(--blush); }
+  .form-textarea { resize: vertical; min-height: 80px; }
+
+  .upload-area { border: 2px dashed var(--blush); border-radius: 16px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fff8f5; }
+  .upload-area:hover { background: #fce4d6; }
+  .upload-area.has-file { border-color: var(--green); background: #f0fff4; }
+  .upload-text { font-size: 0.85rem; color: #8a6555; }
+  .preview-img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 10px; margin-top: 10px; }
+
+  .verify-status { border-radius: 12px; padding: 12px 14px; margin-top: 10px; font-size: 0.82rem; display: none; }
+  .verify-status.checking { background: #fff3e0; color: #e65100; display: flex; align-items: center; gap: 8px; }
+  .verify-status.success { background: #dcfce7; color: #15803d; display: flex; align-items: center; gap: 8px; }
+  .verify-status.failed { background: #fee2e2; color: #b91c1c; display: flex; align-items: center; gap: 8px; }
+  .spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .submit-btn { width: 100%; background: var(--rose); color: white; border: none; padding: 16px; border-radius: 16px; font-size: 1rem; font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer; transition: all 0.3s; margin-top: 8px; }
+  .submit-btn:hover:not(:disabled) { background: var(--brown); }
+  .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+  .success-screen { display: none; position: fixed; inset: 0; background: var(--cream); z-index: 200; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; }
+  .success-screen.show { display: flex; }
+  .success-icon { font-size: 4rem; margin-bottom: 16px; animation: bounce 0.6s ease; }
+  @keyframes bounce { 0%,100%{transform:scale(1)}50%{transform:scale(1.2)} }
+  .success-screen h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 12px; }
+  .success-screen p { color: #8a6555; font-size: 0.9rem; line-height: 1.6; max-width: 280px; }
+  .success-order-id { background: white; border-radius: 12px; padding: 10px 20px; margin: 16px 0; font-weight: 700; color: var(--rose); font-size: 1rem; }
+  .new-order-btn { background: var(--rose); color: white; border: none; padding: 14px 30px; border-radius: 30px; font-size: 0.95rem; cursor: pointer; margin-top: 16px; }
+
+  .wa-float { position: fixed; bottom: 20px; right: 20px; background: #25D366; color: white; width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 4px 16px rgba(37,211,102,0.4); cursor: pointer; z-index: 99; text-decoration: none; transition: transform 0.2s; }
+  .wa-float:hover { transform: scale(1.1); }
+
+  .tabs { display: flex; padding: 0 20px; gap: 8px; margin-bottom: 4px; overflow-x: auto; padding-bottom: 4px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; border: 1.5px solid #e8d5c8; background: white; color: var(--brown); transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
+  .tab.active { background: var(--rose); color: white; border-color: var(--rose); }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .gallery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px 20px; }
+  .gallery-item { border-radius: 14px; overflow: hidden; aspect-ratio: 1; background: #e8d5c8; }
+  .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+  .gallery-caption { font-size: 0.72rem; color: #8a6555; text-align: center; padding: 4px 0; }
+
+  .hours-table { background: white; border-radius: 16px; margin: 0 20px 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .hours-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #f5ede4; font-size: 0.87rem; }
+  .hours-row:last-child { border-bottom: none; }
+  .hours-row.today { background: #fff8f5; font-weight: 600; }
+  .hours-time { color: #8a6555; }
+
+  /* SETTINGS */
+  .settings-section { padding: 20px; }
+  .settings-card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 16px; }
+  .settings-card h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 16px; }
+  .lang-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .lang-option { border: 2px solid #e8d5c8; border-radius: 16px; padding: 20px 12px; text-align: center; cursor: pointer; transition: all 0.2s; background: white; }
+  .lang-option:hover { border-color: var(--blush); background: #fff8f5; }
+  .lang-option.active { border-color: var(--rose); background: linear-gradient(135deg, #fff3e0, #fce4d6); }
+  .lang-flag { font-size: 2.5rem; margin-bottom: 8px; }
+  .lang-name { font-weight: 600; font-size: 0.95rem; color: var(--brown); }
+  .lang-native { font-size: 0.78rem; color: #8a6555; margin-top: 3px; }
+  .lang-check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #e8d5c8; display: flex; align-items: center; justify-content: center; margin: 8px auto 0; font-size: 0.7rem; transition: all 0.2s; }
+  .lang-option.active .lang-check { background: var(--rose); border-color: var(--rose); color: white; }
+  .settings-info { background: #fff8f5; border-radius: 12px; padding: 12px 14px; font-size: 0.82rem; color: #8a6555; border: 1px solid #fce4d6; margin-top: 14px; }
+
+  /* ADMIN */
+  .admin-section { padding: 20px; }
+  .admin-login { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .admin-login h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 16px; }
+  .admin-dashboard { display: none; }
+  .order-card { background: white; border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid var(--blush); }
+  .order-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .order-name { font-weight: 600; font-size: 0.95rem; }
+  .order-time { font-size: 0.72rem; color: #8a6555; }
+  .order-detail { font-size: 0.82rem; color: #8a6555; margin-bottom: 3px; }
+  .order-badge { display: inline-block; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 8px; font-size: 0.7rem; font-weight: 500; }
+  .order-badge.pending { background: #fff3e0; color: #e65100; }
+  .alert { border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 0.85rem; }
+  .alert-error { background: #fee2e2; color: #b91c1c; }
+  .alert-success { background: #dcfce7; color: #15803d; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">🎂 Abby Cake & Bites</div>
+  <div class="nav-status" id="navStatus">Closed</div>
+</nav>
+
+<div class="tabs" style="padding-top:14px" id="mainTabs">
+  <div class="tab active" onclick="showPage('home')" id="tab-home">🏠 Home</div>
+  <div class="tab" onclick="showPage('order')" id="tab-order">🎂 Order</div>
+  <div class="tab" onclick="showPage('gallery')" id="tab-gallery">🖼 Gallery</div>
+  <div class="tab" onclick="showPage('settings')" id="tab-settings">⚙️ Settings</div>
+  <div class="tab" onclick="showPage('admin')" id="tab-admin">🔐 Admin</div>
+</div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-tag" id="hero_tag"></div>
+    <h1 id="hero_h1"></h1>
+    <p id="hero_sub"></p>
+    <button class="hero-btn" onclick="showPage('order')" id="hero_btn"></button>
+  </div>
+  <div class="info-grid">
+    <div class="info-card"><div class="info-icon">📍</div><div class="info-label" id="label_location"></div><div class="info-value">Njiapanda, Himo<br>Tanzania</div></div>
+    <div class="info-card"><div class="info-icon">📞</div><div class="info-label" id="label_phone"></div><div class="info-value">0620 767 919</div></div>
+    <div class="info-card"><div class="info-icon">🕐</div><div class="info-label" id="label_hours"></div><div class="info-value">7:00 AM – 7:00 PM<br><span id="openStatus" style="font-size:0.8rem"></span></div></div>
+    <div class="info-card"><div class="info-icon">🚗</div><div class="info-label" id="label_delivery"></div><div class="info-value" id="delivery_val"></div></div>
+  </div>
+  <div class="section-title"><h2 id="opening_hours"></h2><p id="opening_sub"></p></div>
+  <div class="hours-table" id="hoursTable"></div>
+  <div class="section-title"><h2 id="how_order"></h2><p id="how_order_sub"></p></div>
+  <div style="padding:0 20px 30px">
+    <div class="payment-box">
+      <div class="payment-step"><div class="step-num">1</div><div class="step-text" id="how_step1"></div></div>
+      <div class="payment-step"><div class="step-num">2</div><div class="step-text" id="how_step2"></div></div>
+      <div class="payment-step"><div class="step-num">3</div><div class="step-text" id="how_step3"></div></div>
+      <div class="payment-step"><div class="step-num">4</div><div class="step-text" id="how_step4"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER -->
+<div class="page" id="page-order">
+  <div class="section-title"><h2 id="order_title"></h2><p id="order_sub"></p></div>
+  <div class="menu-grid" id="menuGrid"></div>
+  <div class="order-section" id="orderForm" style="display:none">
+    <div class="amount-display">
+      <div class="amount-label" id="half_label"></div>
+      <div class="amount-value" id="halfAmount">TZS 0</div>
+      <div class="amount-note"><span id="send_to"></span> <strong>0620767919</strong> (Gift Lyimo)</div>
+    </div>
+    <div class="payment-box">
+      <h3>💳 <span id="pay_instructions"></span></h3>
+      <div class="payment-step"><div class="step-num">1</div><div class="step-text" id="pay_step1"></div></div>
+      <div class="payment-step"><div class="step-num">2</div><div class="step-text"><span id="pay_step2a"></span> <strong id="halfAmountSmall">TZS 0</strong> <span id="pay_step2b"></span> <strong>0620767919</strong> — <span id="name_label"></span> <strong>Gift Lyimo</strong></div></div>
+      <div class="payment-step"><div class="step-num">3</div><div class="step-text" id="pay_step3"></div></div>
+      <div class="payment-methods"><span class="pay-badge">📱 M-Pesa</span><span class="pay-badge">📱 Tigo Pesa</span><span class="pay-badge">📱 Airtel Money</span></div>
+    </div>
+    <div id="alertBox"></div>
+    <div class="form-group"><label class="form-label" id="field_name"></label><input class="form-input" id="custName" type="text"/></div>
+    <div class="form-group"><label class="form-label" id="field_phone"></label><input class="form-input" id="custPhone" placeholder="e.g. 0712345678" type="tel"/></div>
+    <div class="form-group"><label class="form-label" id="field_location"></label><textarea class="form-textarea" id="custLocation"></textarea></div>
+    <div class="form-group"><label class="form-label" id="field_order"></label><textarea class="form-textarea" id="custOrder"></textarea></div>
+    <div class="form-group">
+      <label class="form-label" id="field_reference"></label>
+      <div class="upload-area" id="refUploadArea" onclick="document.getElementById('refFileInput').click()">
+        <div style="font-size:2rem;margin-bottom:8px">🖼</div>
+        <div class="upload-text" id="ref_upload_text"></div>
+        <input type="file" id="refFileInput" accept="image/*" onchange="handleRefFileSelect(event)" style="display:none"/>
+        <img id="refPreviewImg" class="preview-img" style="display:none"/>
+      </div>
+      <div style="font-size:0.75rem;color:#8a6555;margin-top:6px" id="ref_optional_note"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="field_screenshot"></label>
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+        <div style="font-size:2rem;margin-bottom:8px">📸</div>
+        <div class="upload-text" id="upload_text"></div>
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)" style="display:none"/>
+        <img id="previewImg" class="preview-img" style="display:none"/>
+      </div>
+      <div class="verify-status" id="verifyStatus"></div>
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="submitOrder()" disabled></button>
+  </div>
+  <div id="noItemSelected" style="text-align:center;padding:40px 20px;color:#8a6555">
+    <div style="font-size:3rem;margin-bottom:12px">☝️</div>
+    <p id="no_item"></p>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<div class="page" id="page-gallery">
+  <div class="section-title"><h2 id="gallery_title"></h2><p id="gallery_sub"></p></div>
+  <div class="gallery-grid" id="galleryGrid">
+    <div style="grid-column:span 2;text-align:center;padding:40px 20px;color:#8a6555">
+      <div style="font-size:2.5rem;margin-bottom:10px">📸</div><p id="gallery_empty"></p>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="settings-section">
+    <div class="section-title" style="padding-left:0"><h2 id="settings_title"></h2><p id="settings_sub"></p></div>
+    <div class="settings-card">
+      <h3>🌍 <span id="lang_heading"></span></h3>
+      <div class="lang-options">
+        <div class="lang-option active" id="lang-en" onclick="setLanguage('en')">
+          <div class="lang-flag">🇬🇧</div>
+          <div class="lang-name">English</div>
+          <div class="lang-native">English</div>
+          <div class="lang-check" id="check-en">✓</div>
+        </div>
+        <div class="lang-option" id="lang-sw" onclick="setLanguage('sw')">
+          <div class="lang-flag">🇹🇿</div>
+          <div class="lang-name">Kiswahili</div>
+          <div class="lang-native">Lugha ya Tanzania</div>
+          <div class="lang-check" id="check-sw"></div>
+        </div>
+      </div>
+      <div class="settings-info" id="lang_info"></div>
+    </div>
+    <div class="settings-card">
+      <h3>📞 <span id="contact_us"></span></h3>
+      <div style="font-size:0.87rem;color:#8a6555;line-height:1.8">
+        <div>📍 Njiapanda, Himo, Tanzania</div>
+        <div>📞 0620 767 919</div>
+        <div>💬 <span id="wa_available"></span></div>
+      </div>
+    </div>
+    <div class="settings-card">
+      <h3>ℹ️ <span id="about_title"></span></h3>
+      <div style="font-size:0.87rem;color:#8a6555;line-height:1.7" id="about_text"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="page-admin">
+  <div class="admin-section">
+    <div class="admin-login" id="adminLogin">
+      <h3>🔐 <span id="admin_login_title"></span></h3>
+      <div id="loginAlert"></div>
+      <div class="form-group"><label class="form-label" id="admin_user_label"></label><input class="form-input" id="adminUser" placeholder="Username"/></div>
+      <div class="form-group"><label class="form-label" id="admin_pass_label"></label><input class="form-input" id="adminPass" type="password" placeholder="Password"/></div>
+      <button class="submit-btn" onclick="adminLogin()" id="admin_login_btn"></button>
+    </div>
+    <div class="admin-dashboard" id="adminDashboard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h2 style="font-family:'Playfair Display',serif" id="dashboard_title"></h2>
+        <button onclick="adminLogout()" id="logout_btn" style="background:none;border:1.5px solid #e8d5c8;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:0.82rem"></button>
+      </div>
+      <div class="tabs" style="padding:0;margin-bottom:16px">
+        <div class="tab active" onclick="adminTab('orders',this)" id="tab_orders_btn"></div>
+        <div class="tab" onclick="adminTab('gallery',this)" id="tab_gallery_admin_btn"></div>
+      </div>
+      <div id="adminOrders"><div id="ordersList"></div></div>
+      <div id="adminGallery" style="display:none">
+        <div class="payment-box" style="margin-bottom:16px">
+          <h3>📸 <span id="upload_photo_title"></span></h3>
+          <div class="upload-area" onclick="document.getElementById('galleryFileInput').click()" style="margin-top:10px">
+            <div style="font-size:2rem;margin-bottom:8px">🖼</div>
+            <div class="upload-text" id="tap_select_text"></div>
+            <input type="file" id="galleryFileInput" accept="image/jpeg,image/png" onchange="previewGalleryFile(event)" style="display:none"/>
+            <img id="galleryPreview" style="display:none;width:100%;max-height:180px;object-fit:contain;border-radius:10px;margin-top:10px"/>
+          </div>
+          <div class="form-group" style="margin-top:12px;margin-bottom:8px">
+            <label class="form-label" id="caption_label"></label>
+            <input class="form-input" id="galleryCaption" id="ph_caption"/>
+          </div>
+          <button class="submit-btn" onclick="uploadGalleryPhoto()" id="upload_btn_text"></button>
+          <div id="galleryUploadStatus" style="margin-top:8px;font-size:0.82rem"></div>
+        </div>
+        <h3 style="font-family:'Playfair Display',serif;margin-bottom:12px" id="gallery_photos_title"></h3>
+        <div class="gallery-grid" id="adminGalleryGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">🎉</div>
+  <h2 id="success_title"></h2>
+  <p id="success_msg"></p>
+  <div class="success-order-id" id="successOrderId"></div>
+  <p style="font-size:0.8rem;color:#8a6555" id="success_sms"></p>
+  <button class="new-order-btn" onclick="resetOrder()" id="new_order_btn"></button>
+</div>
+
+<a class="wa-float" href="https://wa.me/255620767919" target="_blank">💬</a>
+
+<script>
+const BACKEND = 'https://abby-backend.onrender.com';
+
+const T = {
+  en: {
+    tab_home:'🏠 Home', tab_order:'🎂 Order', tab_gallery:'🖼 Gallery',
+    tab_settings:'⚙️ Settings', tab_admin:'🔐 Admin',
+    hero_tag:'Handcrafted · Himo, Tanzania',
+    hero_h1:'Where Every Bite is <span style="color:var(--rose);font-style:italic">Pure Delight</span>',
+    hero_sub:'Custom cakes, pastries and sweets baked fresh daily with love for every occasion.',
+    hero_btn:'🎂 Order Now',
+    label_location:'Location', label_phone:'Phone / SMS',
+    label_hours:"Today's Hours", label_delivery:'Delivery',
+    delivery_val:'Available in Himo<br>TZS 3,000–8,000',
+    opening_hours:'Opening Hours', opening_sub:'We are here to sweeten your week',
+    how_order:'How to Order', how_order_sub:'Simple steps to get your treat',
+    how_step1:'Pick your item from the <strong>Order</strong> tab and fill in your details',
+    how_step2:'Pay <strong>half the price</strong> to <strong>0620767919</strong> (Gift Lyimo) via M-Pesa, Tigo Pesa or Airtel Money',
+    how_step3:'Take a <strong>screenshot</strong> of your payment confirmation',
+    how_step4:'Upload the screenshot — we verify it automatically and your order is sent!',
+    order_title:'Place Your Order', order_sub:'Select an item then fill in your details',
+    half_label:'Half Payment Required', send_to:'Send to',
+    pay_instructions:'Payment Instructions',
+    pay_step1:'Open your mobile money app',
+    pay_step2a:'Send', pay_step2b:'to number', name_label:'name:',
+    pay_step3:'Take a screenshot of the <strong>confirmation message</strong> showing the number and name',
+    field_name:'Your Full Name *', field_phone:'Phone Number *',
+    field_location:'Delivery Location / Description *', field_order:'Order Details *',
+    field_reference:'Reference Photo (Optional) 🖼',
+    ref_upload_text:'Tap to upload a <strong>reference photo</strong> showing what you want<br><span style="font-size:0.75rem">e.g. cake design, color, style you like</span>',
+    ref_optional_note:'Optional — helps us understand exactly what you want',
+    field_screenshot:'Payment Screenshot *',
+    upload_text:'Tap to upload your <strong>payment confirmation screenshot</strong><br><span style="font-size:0.75rem">Must show 0620767919 and Gift Lyimo</span>',
+    submit_btn:'📤 Submit Order',
+    no_item:'Please select an item from the menu above to continue',
+    gallery_title:'Our Gallery', gallery_sub:'Fresh from our kitchen',
+    gallery_empty:'Photos coming soon!',
+    settings_title:'Settings', settings_sub:'Customize your experience',
+    lang_heading:'Language / Lugha',
+    lang_info:'Choose your preferred language. The entire website will switch instantly including menus, instructions and all messages.',
+    contact_us:'Contact Us', wa_available:'WhatsApp available',
+    about_title:'About',
+    about_text:'Abby Cake & Bites is a home bakery based in Himo, Tanzania. We bake custom cakes, pastries and sweets fresh daily with love and care for every customer.',
+    admin_login_title:'Admin Login', admin_user_label:'Username', admin_pass_label:'Password',
+    admin_login_btn:'Login', dashboard_title:'Dashboard', logout_btn:'Logout',
+    tab_orders_btn:'📦 Orders', tab_gallery_admin_btn:'🖼 Gallery',
+    upload_photo_title:'Upload Product Photo', tap_select_text:'Tap to select photo (JPG or PNG)',
+    caption_label:'Caption (product name)', upload_btn_text:'Upload to Gallery 📷',
+    gallery_photos_title:'Gallery Photos',
+    success_title:'Order Placed!',
+    success_msg:"Your order has been received. We'll contact you shortly to confirm and arrange delivery.",
+    success_sms:'A notification has been sent to our team via SMS',
+    new_order_btn:'Place Another Order',
+    nav_open:'Open', nav_closed:'Closed',
+    open_dot:'● Open', closed_dot:'● Closed',
+    verify_checking:'Verifying payment screenshot with AI...',
+    verify_ok:'✅ Payment verified! Number and name confirmed.',
+    verify_fail:'❌ Verification failed: Screenshot must clearly show 0620767919 and Gift Lyimo',
+    verify_manual:'✅ Screenshot uploaded. Our team will verify payment manually.',
+    fill_all:'Please fill in all fields.',
+    upload_first:'Please upload your payment screenshot first.',
+    sending:'⏳ Sending order...',
+    delete_confirm:'Delete this photo?',
+    ph_name:'e.g. Amina Hassan',
+    ph_location:'e.g. Himo town, near the market, blue gate...',
+    ph_order:'What exactly do you want? Size, flavor, quantity, special requests...',
+    ph_caption:'e.g. Chocolate Cake',
+    menu_custom:'Custom',
+    today_suffix:' (Today)',
+    days:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    invalid_creds:'Invalid credentials', conn_error:'Connection error',
+    no_orders:'No orders yet.', load_fail:'Could not load orders.',
+    loading:'Loading...', uploading:'⏳ Uploading...', select_photo:'Please select a photo',
+    uploaded_ok:'✅ Uploaded!', half_paid:'Half paid',
+    order_prefix:'Order #', delete_lbl:'🗑 Delete', no_photos:'No photos yet.',
+  },
+  sw: {
+    tab_home:'🏠 Nyumbani', tab_order:'🎂 Agiza', tab_gallery:'🖼 Picha',
+    tab_settings:'⚙️ Mipangilio', tab_admin:'🔐 Msimamizi',
+    hero_tag:'Imetengenezwa kwa Mikono · Himo, Tanzania',
+    hero_h1:'Kila Tonge ni <span style="color:var(--rose);font-style:italic">Ladha Tamu</span>',
+    hero_sub:'Keki, mikate na pipi zinazoandaliwa kila siku kwa upendo na moyo wa dhati.',
+    hero_btn:'🎂 Agiza Sasa',
+    label_location:'Mahali', label_phone:'Simu / SMS',
+    label_hours:'Masaa ya Leo', label_delivery:'Uwasilishaji',
+    delivery_val:'Inapatikana Himo<br>TZS 3,000–8,000',
+    opening_hours:'Masaa ya Kufungua', opening_sub:'Tuko hapa kukufurahisha wiki yote',
+    how_order:'Jinsi ya Kuagiza', how_order_sub:'Hatua rahisi kupata unachotaka',
+    how_step1:'Chagua bidhaa kutoka kwenye kichupo cha <strong>Agiza</strong> na ujaze maelezo yako',
+    how_step2:'Lipa <strong>nusu ya bei</strong> kwa <strong>0620767919</strong> (Gift Lyimo) kupitia M-Pesa, Tigo Pesa au Airtel Money',
+    how_step3:'Piga <strong>picha ya skrini</strong> ya uthibitisho wa malipo yako',
+    how_step4:'Pakia picha ya skrini — tunaihakiki kiotomatiki na agizo lako linatumwa!',
+    order_title:'Weka Agizo Lako', order_sub:'Chagua bidhaa kisha jaza maelezo yako',
+    half_label:'Nusu ya Malipo Inahitajika', send_to:'Tuma kwa',
+    pay_instructions:'Maelekezo ya Malipo',
+    pay_step1:'Fungua programu yako ya pesa za simu',
+    pay_step2a:'Tuma', pay_step2b:'kwa nambari', name_label:'jina:',
+    pay_step3:'Piga picha ya skrini ya <strong>ujumbe wa uthibitisho</strong> unaoonyesha nambari na jina',
+    field_name:'Jina Lako Kamili *', field_phone:'Nambari ya Simu *',
+    field_location:'Mahali pa Uwasilishaji / Maelezo *', field_order:'Maelezo ya Agizo *',
+    field_reference:'Picha ya Mfano (Si Lazima) 🖼',
+    ref_upload_text:'Bonyeza kupakia <strong>picha ya mfano</strong> inayoonyesha unachotaka<br><span style="font-size:0.75rem">mfano: muundo wa keki, rangi, mtindo unaopenda</span>',
+    ref_optional_note:'Si lazima — inatusaidia kuelewa vizuri unachotaka',
+    field_screenshot:'Picha ya Skrini ya Malipo *',
+    upload_text:'Bonyeza kupakia <strong>picha ya skrini ya uthibitisho wa malipo</strong><br><span style="font-size:0.75rem">Lazima ionyeshe 0620767919 na Gift Lyimo</span>',
+    submit_btn:'📤 Wasilisha Agizo',
+    no_item:'Tafadhali chagua bidhaa kutoka kwenye orodha hapo juu kuendelea',
+    gallery_title:'Picha Zetu', gallery_sub:'Moja kwa moja kutoka jikoni mwetu',
+    gallery_empty:'Picha zinakuja hivi karibuni!',
+    settings_title:'Mipangilio', settings_sub:'Badilisha uzoefu wako',
+    lang_heading:'Lugha / Language',
+    lang_info:'Chagua lugha unayopendelea. Tovuti nzima itabadilika mara moja ikiwemo orodha, maelekezo na ujumbe wote.',
+    contact_us:'Wasiliana Nasi', wa_available:'WhatsApp inapatikana',
+    about_title:'Kuhusu',
+    about_text:'Abby Cake & Bites ni bakari ya nyumbani iliyoko Himo, Tanzania. Tunaoka keki maalum, mikate na pipi kila siku kwa upendo na huduma bora kwa kila mteja.',
+    admin_login_title:'Kuingia kwa Msimamizi', admin_user_label:'Jina la Mtumiaji', admin_pass_label:'Nenosiri',
+    admin_login_btn:'Ingia', dashboard_title:'Dashibodi', logout_btn:'Toka',
+    tab_orders_btn:'📦 Maagizo', tab_gallery_admin_btn:'🖼 Picha',
+    upload_photo_title:'Pakia Picha ya Bidhaa', tap_select_text:'Gonga kuchagua picha (JPG au PNG)',
+    caption_label:'Maelezo mafupi (jina la bidhaa)', upload_btn_text:'Pakia kwenye Picha 📷',
+    gallery_photos_title:'Picha za Bidhaa',
+    success_title:'Agizo Limewekwa!',
+    success_msg:'Agizo lako limepokelewa. Tutawasiliana nawe hivi karibuni kuthibitisha na kupanga uwasilishaji.',
+    success_sms:'Arifa imetumwa kwa timu yetu kupitia SMS',
+    new_order_btn:'Weka Agizo Jingine',
+    nav_open:'Imefunguliwa', nav_closed:'Imefungwa',
+    open_dot:'● Imefunguliwa', closed_dot:'● Imefungwa',
+    verify_checking:'Inahakiki picha ya skrini ya malipo kwa AI...',
+    verify_ok:'✅ Malipo yamethibitishwa! Nambari na jina vimethibitishwa.',
+    verify_fail:'❌ Uthibitisho umeshindwa: Picha lazima ionyeshe wazi 0620767919 na Gift Lyimo',
+    verify_manual:'✅ Picha imepakiwa. Timu yetu itathibitisha malipo.',
+    fill_all:'Tafadhali jaza sehemu zote.',
+    upload_first:'Tafadhali pakia picha yako ya malipo kwanza.',
+    sending:'⏳ Inatuma agizo...',
+    delete_confirm:'Futa picha hii?',
+    ph_name:'mfano: Amina Hassan',
+    ph_location:'mfano: Mji wa Himo, karibu na soko, lango la bluu...',
+    ph_order:'Unataka nini hasa? Ukubwa, ladha, idadi, maombi maalum...',
+    ph_caption:'mfano: Keki ya Chokoleti',
+    menu_custom:'Bei maalum',
+    today_suffix:' (Leo)',
+    days:['Jumapili','Jumatatu','Jumanne','Jumatano','Alhamisi','Ijumaa','Jumamosi'],
+    invalid_creds:'Jina au nenosiri si sahihi', conn_error:'Hitilafu ya muunganisho',
+    no_orders:'Hakuna maagizo bado.', load_fail:'Haikuweza kupakia maagizo.',
+    loading:'Inapakia...', uploading:'⏳ Inapakia...', select_photo:'Tafadhali chagua picha',
+    uploaded_ok:'✅ Imepakiwa!', half_paid:'Nusu imelipwa',
+    order_prefix:'Agizo #', delete_lbl:'🗑 Futa', no_photos:'Hakuna picha bado.',
+  }
+};
+
+const menuItems = [
+  {id:1,emoji:'🎂',en:['Custom Cake','Birthday, wedding, any occasion'],sw:['Keki Maalum','Siku ya kuzaliwa, harusi, sherehe yoyote'],price:25000},
+  {id:2,emoji:'🧁',en:['Cupcakes (12pcs)','Assorted flavors, beautifully decorated'],sw:['Keki Ndogo (12)','Ladha mchanganyiko, zimepambwa vizuri'],price:15000},
+  {id:3,emoji:'🍩',en:['Donuts (6pcs)','Glazed and filled varieties'],sw:['Donati (6)','Aina za kioo na zilizojazwa'],price:8000},
+  {id:4,emoji:'🍪',en:['Cookies (10pcs)','Chocolate chip, butter & more'],sw:['Kuki (10)','Chokoleti, siagi na zaidi'],price:6000},
+  {id:5,emoji:'🥐',en:['Mandazi (10pcs)','Fresh fried, lightly sweetened'],sw:['Mandazi (10)','Mapya yaliyokaangwa, tamu kidogo'],price:5000},
+  {id:6,emoji:'🫓',en:['Bagia (10pcs)','Crispy savory snack'],sw:['Bagia (10)','Vitafunio vya crunchy'],price:5000},
+  {id:7,emoji:'🍰',en:['Slice Cake','Single slice, various flavors'],sw:['Kipande cha Keki','Kipande kimoja, ladha mbalimbali'],price:3000},
+  {id:8,emoji:'🧇',en:['Special Order','Tell us what you need'],sw:['Agizo Maalum','Tuambie unachohitaji'],price:0},
+];
+
+const hours = {
+  0:{open:'8:00 AM',close:'5:00 PM'},1:{open:'7:00 AM',close:'7:00 PM'},
+  2:{open:'7:00 AM',close:'7:00 PM'},3:{open:'7:00 AM',close:'7:00 PM'},
+  4:{open:'7:00 AM',close:'7:00 PM'},5:{open:'7:00 AM',close:'7:00 PM'},
+  6:{open:'7:00 AM',close:'8:00 PM'},
+};
+
+let lang = localStorage.getItem('abby_lang') || 'en';
+let selectedItem = null;
+let verifiedPayment = false;
+let adminToken = null;
+let currentFile = null;
+
+function t(k) { return (T[lang] && T[lang][k]) || (T.en[k]) || k; }
+
+const ids = [
+  'tab-home','tab-order','tab-gallery','tab-settings','tab-admin',
+  'hero_tag','hero_h1','hero_sub','hero_btn',
+  'label_location','label_phone','label_hours','label_delivery','delivery_val',
+  'opening_hours','opening_sub','how_order','how_order_sub',
+  'how_step1','how_step2','how_step3','how_step4',
+  'order_title','order_sub','half_label','send_to','pay_instructions',
+  'pay_step1','pay_step2a','pay_step2b','name_label','pay_step3',
+  'field_name','field_phone','field_location','field_order','field_reference','ref_upload_text','ref_optional_note','field_screenshot',
+  'upload_text','submitBtn','no_item',
+  'gallery_title','gallery_sub','gallery_empty',
+  'settings_title','settings_sub','lang_heading','lang_info',
+  'contact_us','wa_available','about_title','about_text',
+  'admin_login_title','admin_user_label','admin_pass_label','admin_login_btn',
+  'dashboard_title','logout_btn','tab_orders_btn','tab_gallery_admin_btn',
+  'upload_photo_title','tap_select_text','caption_label','upload_btn_text','gallery_photos_title',
+  'success_title','success_msg','success_sms','new_order_btn',
+];
+
+function applyLanguage() {
+  // Update tab ids use hyphen in html but underscore in T
+  const tabMap = {'tab-home':'tab_home','tab-order':'tab_order','tab-gallery':'tab_gallery','tab-settings':'tab_settings','tab-admin':'tab_admin'};
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const key = tabMap[id] || id;
+    const val = t(key);
+    if (val) el.innerHTML = val;
+  });
+  // Placeholders
+  const phMap = {custName:'ph_name',custLocation:'ph_location',custOrder:'ph_order',galleryCaption:'ph_caption'};
+  Object.entries(phMap).forEach(([id,key]) => {
+    const el = document.getElementById(id);
+    if (el) el.placeholder = t(key);
+  });
+  // Lang buttons
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-sw').classList.toggle('active', lang === 'sw');
+  document.getElementById('check-en').innerHTML = lang === 'en' ? '✓' : '';
+  document.getElementById('check-sw').innerHTML = lang === 'sw' ? '✓' : '';
+  renderMenu();
+  renderHours();
+  checkOpenStatus();
+}
+
+function setLanguage(l) {
+  lang = l;
+  localStorage.setItem('abby_lang', l);
+  applyLanguage();
+}
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  ['home','order','gallery','settings','admin'].forEach(p => {
+    const el = document.getElementById('tab-' + p);
+    if (el) el.classList.remove('active');
+  });
+  document.getElementById('page-' + page).classList.add('active');
+  const tabEl = document.getElementById('tab-' + page);
+  if (tabEl) tabEl.classList.add('active');
+  if (page === 'gallery') loadGallery();
+  if (page === 'admin' && adminToken) loadOrders();
+}
+
+function renderMenu() {
+  const grid = document.getElementById('menuGrid');
+  grid.innerHTML = menuItems.map(item => {
+    const name = lang === 'sw' ? item.sw[0] : item.en[0];
+    const desc = lang === 'sw' ? item.sw[1] : item.en[1];
+    const priceText = item.price > 0 ? 'TZS ' + item.price.toLocaleString() : t('menu_custom');
+    const sel = selectedItem?.id === item.id;
+    return `<div class="menu-item ${sel?'selected':''}" onclick="selectItem(${item.id})">
+      <div class="menu-item-left">
+        <div class="menu-emoji">${item.emoji}</div>
+        <div><div class="menu-name">${name}</div><div class="menu-desc">${desc}</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="menu-price">${priceText}</div>
+        <div class="menu-check">${sel?'✓':''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderHours() {
+  const today = new Date().getDay();
+  const days = t('days');
+  document.getElementById('hoursTable').innerHTML = Object.entries(hours).map(([d,h]) => {
+    const di = parseInt(d);
+    return `<div class="hours-row ${di===today?'today':''}">
+      <span>${days[di]}${di===today?t('today_suffix'):''}</span>
+      <span class="hours-time">${h.open} – ${h.close}</span>
+    </div>`;
+  }).join('');
+}
+
+function toMin(str) {
+  const [time,period] = str.split(' ');
+  let [hh,mm] = time.split(':').map(Number);
+  if (period==='PM' && hh!==12) hh+=12;
+  if (period==='AM' && hh===12) hh=0;
+  return hh*60+mm;
+}
+
+function checkOpenStatus() {
+  const now = new Date();
+  const h = hours[now.getDay()];
+  if (!h) return;
+  const nowMin = now.getHours()*60+now.getMinutes();
+  const isOpen = nowMin >= toMin(h.open) && nowMin < toMin(h.close);
+  const statusEl = document.getElementById('navStatus');
+  const openEl = document.getElementById('openStatus');
+  statusEl.textContent = isOpen ? t('nav_open') : t('nav_closed');
+  statusEl.classList.toggle('open', isOpen);
+  if (openEl) { openEl.textContent = isOpen ? t('open_dot') : t('closed_dot'); openEl.style.color = isOpen ? 'var(--green)' : 'var(--rose)'; }
+}
+
+function selectItem(id) {
+  selectedItem = menuItems.find(i => i.id === id);
+  renderMenu();
+  const half = selectedItem.price > 0 ? Math.ceil(selectedItem.price/2) : 0;
+  const halfText = half > 0 ? 'TZS '+half.toLocaleString() : t('menu_custom');
+  document.getElementById('halfAmount').textContent = halfText;
+  document.getElementById('halfAmountSmall').textContent = halfText;
+  const name = lang==='sw' ? selectedItem.sw[0] : selectedItem.en[0];
+  document.getElementById('custOrder').value = selectedItem.price > 0 ? name+' - ' : '';
+  document.getElementById('orderForm').style.display = 'block';
+  document.getElementById('noItemSelected').style.display = 'none';
+  document.getElementById('orderForm').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+let refFile = null;
+
+function handleRefFileSelect(event) {
+  const file = event.target.files[0]; if (!file) return;
+  refFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('refPreviewImg');
+    img.src = e.target.result; img.style.display = 'block';
+    document.getElementById('refUploadArea').classList.add('has-file');
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleFileSelect(event) {
+  const file = event.target.files[0]; if (!file) return;
+  currentFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('previewImg');
+    img.src = e.target.result; img.style.display = 'block';
+    document.getElementById('uploadArea').classList.add('has-file');
+    verifyPaymentScreenshot(e.target.result, file);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function verifyPaymentScreenshot(base64Data, file) {
+  verifiedPayment = false;
+  document.getElementById('submitBtn').disabled = true;
+  const status = document.getElementById('verifyStatus');
+  status.className = 'verify-status checking';
+  status.innerHTML = `<div class="spinner"></div> ${t('verify_checking')}`;
+  try {
+    const base64 = base64Data.split(',')[1];
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:300,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:file.type,data:base64}},
+          {type:'text',text:'This is a mobile money payment screenshot. Check if it contains BOTH: 1) Phone number 0620767919 or 255620767919, AND 2) Name "Gift Lyimo". Reply ONLY with JSON: {"verified":true/false,"reason":"brief"}'}
+        ]}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(c=>c.text||'').join('') || '';
+    let result;
+    try { result = JSON.parse(text.replace(/```json|```/g,'').trim()); }
+    catch(e) { result = {verified: text.includes('"verified":true') || text.includes('"verified": true')}; }
+    if (result.verified) {
+      verifiedPayment = true;
+      status.className = 'verify-status success';
+      status.innerHTML = t('verify_ok');
+      document.getElementById('submitBtn').disabled = false;
+    } else {
+      status.className = 'verify-status failed';
+      status.innerHTML = t('verify_fail');
+    }
+  } catch(e) {
+    verifiedPayment = true;
+    status.className = 'verify-status success';
+    status.innerHTML = t('verify_manual');
+    document.getElementById('submitBtn').disabled = false;
+  }
+}
+
+async function submitOrder() {
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const location = document.getElementById('custLocation').value.trim();
+  const orderDetail = document.getElementById('custOrder').value.trim();
+  const alertBox = document.getElementById('alertBox');
+  if (!name||!phone||!location||!orderDetail) {
+    alertBox.innerHTML = `<div class="alert alert-error">${t('fill_all')}</div>`; return;
+  }
+  if (!verifiedPayment) {
+    alertBox.innerHTML = `<div class="alert alert-error">${t('upload_first')}</div>`; return;
+  }
+  alertBox.innerHTML = '';
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = t('sending');
+  const half = selectedItem.price > 0 ? Math.ceil(selectedItem.price/2) : 0;
+  const orderId = 'ABY'+Date.now().toString().slice(-6);
+  const itemName = lang==='sw' ? selectedItem.sw[0] : selectedItem.en[0];
+  try {
+    let sc = '';
+    if (currentFile) sc = await new Promise(res => { const r=new FileReader(); r.onload=e=>res(e.target.result.split(',')[1]); r.readAsDataURL(currentFile); });
+    let refSc = '';
+    if (refFile) refSc = await new Promise(res => { const r=new FileReader(); r.onload=e=>res(e.target.result.split(',')[1]); r.readAsDataURL(refFile); });
+    const res = await fetch(`${BACKEND}/api/orders`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({customer:{name,phone},item:{name:itemName,price:selectedItem.price,halfPaid:half},delivery:{address:location},notes:orderDetail,orderId,paymentVerified:verifiedPayment,screenshot:sc,referencePhoto:refSc})
+    });
+    const json = await res.json();
+    if (json.success||json._id) { showSuccess(orderId); return; }
+  } catch(e) {}
+  showSuccess(orderId);
+}
+
+function showSuccess(orderId) {
+  document.getElementById('successOrderId').textContent = t('order_prefix') + orderId;
+  document.getElementById('successScreen').classList.add('show');
+}
+
+function resetOrder() {
+  document.getElementById('successScreen').classList.remove('show');
+  selectedItem = null; verifiedPayment = false; currentFile = null; refFile = null;
+  renderMenu();
+  document.getElementById('orderForm').style.display = 'none';
+  document.getElementById('noItemSelected').style.display = 'block';
+  ['custName','custPhone','custLocation','custOrder'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('previewImg').style.display = 'none';
+  document.getElementById('refPreviewImg').style.display = 'none';
+  document.getElementById('uploadArea').classList.remove('has-file');
+  document.getElementById('refUploadArea').classList.remove('has-file');
+  document.getElementById('verifyStatus').className = 'verify-status';
+  document.getElementById('submitBtn').disabled = true;
+  applyLanguage();
+  showPage('order');
+}
+
+async function loadGallery() {
+  try {
+    const res = await fetch(`${BACKEND}/api/gallery`);
+    const json = await res.json();
+    if (json.success && json.data.length > 0) {
+      document.getElementById('galleryGrid').innerHTML = json.data.map(p => {
+        const src = p.url || (p.imageData ? 'data:image/jpeg;base64,' + p.imageData : '');
+        return `<div><div class="gallery-item"><img src="${src}" alt="${p.caption||''}" loading="lazy"/></div><div class="gallery-caption">${p.caption||''}</div></div>`;
+      }).join('');
+    }
+  } catch(e) {}
+}
+
+function adminLogin() {
+  const user = document.getElementById('adminUser').value;
+  const pass = document.getElementById('adminPass').value;
+  fetch(`${BACKEND}/api/admin/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user,password:pass})})
+    .then(r=>r.json()).then(json=>{
+      if (json.success||json.token) {
+        adminToken = json.token;
+        document.getElementById('adminLogin').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'block';
+        loadOrders();
+      } else {
+        document.getElementById('loginAlert').innerHTML = `<div class="alert alert-error">${t('invalid_creds')}</div>`;
+      }
+    }).catch(()=>{ document.getElementById('loginAlert').innerHTML = `<div class="alert alert-error">${t('conn_error')}</div>`; });
+}
+
+function adminLogout() {
+  adminToken = null;
+  document.getElementById('adminLogin').style.display = 'block';
+  document.getElementById('adminDashboard').style.display = 'none';
+}
+
+function adminTab(tab, el) {
+  document.querySelectorAll('#adminDashboard .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('adminOrders').style.display = tab==='orders' ? 'block' : 'none';
+  document.getElementById('adminGallery').style.display = tab==='gallery' ? 'block' : 'none';
+  if (tab==='gallery') loadAdminGallery();
+}
+
+async function loadOrders() {
+  const list = document.getElementById('ordersList');
+  list.innerHTML = `<p style="color:#8a6555;font-size:0.85rem">${t('loading')}</p>`;
+  try {
+    const res = await fetch(`${BACKEND}/api/admin/orders`,{headers:{'Authorization':'Bearer '+adminToken}});
+    const json = await res.json();
+    if (json.success && json.data?.length > 0) {
+      list.innerHTML = json.data.reverse().map(o=>`
+        <div class="order-card">
+          <div class="order-card-header"><div class="order-name">${o.customer?.name||'?'}</div><div class="order-time">${new Date(o.createdAt).toLocaleDateString()}</div></div>
+          <div class="order-detail">📞 ${o.customer?.phone||'-'}</div>
+          <div class="order-detail">📍 ${o.delivery?.address||'-'}</div>
+          <div class="order-detail">🎂 ${o.item?.name||o.notes||'-'}</div>
+          <div class="order-detail">💰 ${t('half_paid')}: TZS ${(o.item?.halfPaid||0).toLocaleString()}</div>
+          <div style="margin-top:6px"><span class="order-badge ${o.status==='pending'?'pending':''}">${o.status||'pending'}</span></div>
+        </div>`).join('');
+    } else {
+      list.innerHTML = `<p style="color:#8a6555;font-size:0.85rem">${t('no_orders')}</p>`;
+    }
+  } catch(e) { list.innerHTML = `<p style="color:#8a6555;font-size:0.85rem">${t('load_fail')}</p>`; }
+}
+
+async function loadAdminGallery() {
+  try {
+    const res = await fetch(`${BACKEND}/api/gallery`);
+    const json = await res.json();
+    const grid = document.getElementById('adminGalleryGrid');
+    if (json.success && json.data.length > 0) {
+      grid.innerHTML = json.data.map(p=>{
+        const src = p.url || (p.imageData ? 'data:image/jpeg;base64,' + p.imageData : '');
+        return `<div>
+          <div class="gallery-item"><img src="${src}" loading="lazy"/></div>
+          <div class="gallery-caption">${p.caption||''}</div>
+          <button onclick="deletePhoto('${p._id}')" style="width:100%;margin-top:4px;background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;padding:4px;font-size:0.75rem;cursor:pointer">${t('delete_lbl')}</button>
+        </div>`;
+      }).join('');
+    } else {
+      grid.innerHTML = `<p style="grid-column:span 2;color:#8a6555;font-size:0.85rem">${t('no_photos')}</p>`;
+    }
+  } catch(e) {}
+}
+
+function previewGalleryFile(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { const img=document.getElementById('galleryPreview'); img.src=e.target.result; img.style.display='block'; };
+  reader.readAsDataURL(file);
+}
+
+async function uploadGalleryPhoto() {
+  const file = document.getElementById('galleryFileInput').files[0];
+  const caption = document.getElementById('galleryCaption').value;
+  const status = document.getElementById('galleryUploadStatus');
+  if (!file) { status.innerHTML=`<span style="color:var(--red)">${t('select_photo')}</span>`; return; }
+  status.innerHTML = t('uploading');
+  const formData = new FormData();
+  formData.append('photo',file); formData.append('caption',caption);
+  try {
+    const res = await fetch(`${BACKEND}/api/gallery/upload`,{method:'POST',headers:{'Authorization':'Bearer '+adminToken},body:formData});
+    const json = await res.json();
+    if (json.success) {
+      status.innerHTML = `<span style="color:var(--green)">${t('uploaded_ok')}</span>`;
+      document.getElementById('galleryFileInput').value='';
+      document.getElementById('galleryPreview').style.display='none';
+      document.getElementById('galleryCaption').value='';
+      loadAdminGallery(); loadGallery();
+    } else { status.innerHTML=`<span style="color:var(--red)">❌ ${json.message}</span>`; }
+  } catch(e) { status.innerHTML=`<span style="color:var(--red)">❌ ${e.message}</span>`; }
+}
+
+async function deletePhoto(id) {
+  if (!confirm(t('delete_confirm'))) return;
+  try {
+    await fetch(`${BACKEND}/api/gallery/${id}`,{method:'DELETE',headers:{'Authorization':'Bearer '+adminToken}});
+    loadAdminGallery(); loadGallery();
+  } catch(e) {}
+}
+
+// INIT
+applyLanguage();
+</script>
+</body>
+</html>
