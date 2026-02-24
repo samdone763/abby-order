@@ -347,7 +347,31 @@
   <button class="new-order-btn" onclick="resetOrder()" id="new_order_btn"></button>
 </div>
 
-<a class="wa-float" href="https://wa.me/255620767919" target="_blank">💬</a>
+<a class="wa-float" href="https://wa.me/255620767919" target="_blank" style="bottom:90px">💬</a>
+
+<!-- AI CHATBOT -->
+<div id="chatBtn" onclick="toggleChat()" style="position:fixed;bottom:20px;right:20px;background:var(--rose);color:white;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:0 4px 16px rgba(201,123,106,0.5);cursor:pointer;z-index:99;transition:transform 0.2s">🤖</div>
+
+<div id="chatWindow" style="display:none;position:fixed;bottom:84px;right:12px;width:320px;max-width:94vw;height:480px;background:white;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:100;flex-direction:column;overflow:hidden">
+  <!-- Chat Header -->
+  <div style="background:linear-gradient(135deg,var(--rose),var(--blush));padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem">🎂</div>
+      <div>
+        <div style="color:white;font-weight:600;font-size:0.9rem">Abby AI Assistant</div>
+        <div style="color:rgba(255,255,255,0.85);font-size:0.72rem" id="chat_subtitle"></div>
+      </div>
+    </div>
+    <div onclick="toggleChat()" style="color:white;font-size:1.2rem;cursor:pointer;padding:4px">✕</div>
+  </div>
+  <!-- Chat Messages -->
+  <div id="chatMessages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;height:340px"></div>
+  <!-- Chat Input -->
+  <div style="padding:10px 12px;border-top:1px solid #f5ede4;display:flex;gap:8px;align-items:center">
+    <input id="chatInput" type="text" style="flex:1;border:1.5px solid #e8d5c8;border-radius:20px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;color:var(--brown)" onkeydown="if(event.key==='Enter')sendChat()"/>
+    <button onclick="sendChat()" style="background:var(--rose);color:white;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center">➤</button>
+  </div>
+</div>
 
 <script>
 const BACKEND = 'https://abby-backend.onrender.com';
@@ -356,6 +380,9 @@ const T = {
   en: {
     tab_home:'🏠 Home', tab_order:'🎂 Order', tab_gallery:'🖼 Gallery',
     tab_settings:'⚙️ Settings', tab_admin:'🔐 Admin',
+    chat_subtitle:'Ask me anything about our bakery!',
+    chat_placeholder:'Type your question...',
+    chat_welcome:'Hi! 👋 I\'m Abby\'s AI assistant. Ask me about our menu, prices, location, delivery or how to order!',
     hero_tag:'Handcrafted · Himo, Tanzania',
     hero_h1:'Where Every Bite is <span style="color:var(--rose);font-style:italic">Pure Delight</span>',
     hero_sub:'Custom cakes, pastries and sweets baked fresh daily with love for every occasion.',
@@ -432,6 +459,9 @@ const T = {
   sw: {
     tab_home:'🏠 Nyumbani', tab_order:'🎂 Agiza', tab_gallery:'🖼 Picha',
     tab_settings:'⚙️ Mipangilio', tab_admin:'🔐 Msimamizi',
+    chat_subtitle:'Niulize chochote kuhusu bakari yetu!',
+    chat_placeholder:'Andika swali lako...',
+    chat_welcome:'Habari! 👋 Mimi ni msaidizi wa AI wa Abby. Niulize kuhusu menyu, bei, mahali, uwasilishaji au jinsi ya kuagiza!',
     hero_tag:'Imetengenezwa kwa Mikono · Himo, Tanzania',
     hero_h1:'Kila Tonge ni <span style="color:var(--rose);font-style:italic">Ladha Tamu</span>',
     hero_sub:'Keki, mikate na pipi zinazoandaliwa kila siku kwa upendo na moyo wa dhati.',
@@ -559,7 +589,7 @@ const ids = [
   'admin_login_title','admin_user_label','admin_pass_label','admin_login_btn',
   'dashboard_title','logout_btn','tab_orders_btn','tab_gallery_admin_btn',
   'upload_photo_title','tap_select_text','caption_label','upload_btn_text','gallery_photos_title',
-  'success_title','success_msg','success_sms','new_order_btn','wa_send_btn',
+  'success_title','success_msg','success_sms','new_order_btn','wa_send_btn','chat_subtitle',
 ];
 
 function applyLanguage() {
@@ -961,6 +991,122 @@ async function deletePhoto(id) {
     await fetch(`${BACKEND}/api/gallery/${id}`,{method:'DELETE',headers:{'Authorization':'Bearer '+adminToken}});
     loadAdminGallery(); loadGallery();
   } catch(e) {}
+}
+
+// CHATBOT
+const ABBY_INFO = `
+You are Abby AI, a friendly assistant for Abby Cake & Bites bakery in Himo, Tanzania.
+
+ABOUT THE BAKERY:
+- Name: Abby Cake & Bites
+- Location: Njiapanda, Himo, Tanzania
+- Phone/WhatsApp: 0620 767 919
+- Payment recipient: Gift Lyimo (0620767919)
+- Opening hours: Mon-Fri 7AM-7PM, Sat 7AM-8PM, Sun 8AM-5PM
+- Delivery: Available in Himo area, TZS 3,000-8,000
+
+MENU - BITES:
+- Decorated Cupcakes (with buttercream) - TZS 10,000
+- Plain Cupcakes 6pcs - TZS 3,000
+- Cookies Package - TZS 5,000
+- Chapati Package - TZS 10,000
+- Donut Package 6pcs - TZS 10,000
+- Mandazi 10pcs - TZS 3,000
+- Meat Sambusa 8pcs - TZS 10,000
+- Bagia 10pcs - TZS 5,000
+
+MENU - CAKES:
+- Plain Cake - TZS 10,000
+- Bento Cake - TZS 15,000
+- Birthday Cake 700g - TZS 25,000
+- Chocolate Cake 1kg - TZS 45,000
+- Flavour Cakes 1kg - TZS 35,000
+- Fruits Cake 1kg - TZS 55,000
+- Red Velvet Cake 1kg - TZS 40,000
+- Special/Custom Order - Price varies
+
+HOW TO ORDER:
+1. Go to the Order tab on the website
+2. Select your item
+3. Pay HALF the price to 0620767919 (Gift Lyimo) via M-Pesa, Tigo Pesa or Airtel Money
+4. Take a screenshot of payment confirmation
+5. Fill in your details and upload the screenshot
+6. Submit order - you'll get a WhatsApp button to confirm directly
+
+PAYMENT: Half payment required upfront. Remaining half paid on delivery.
+WEBSITE: https://samdone763.github.io/abby-order
+
+Always be friendly, helpful and answer in the same language the user writes in (Swahili or English). Keep answers short and clear. If asked to order, direct them to the Order tab.
+`;
+
+let chatHistory = [];
+let chatOpen = false;
+let chatInitialized = false;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  const win = document.getElementById('chatWindow');
+  win.style.display = chatOpen ? 'flex' : 'none';
+  win.style.flexDirection = 'column';
+  if (chatOpen && !chatInitialized) {
+    chatInitialized = true;
+    addChatMessage('bot', t('chat_welcome'));
+    document.getElementById('chatInput').placeholder = t('chat_placeholder');
+  }
+  if (chatOpen) document.getElementById('chatInput').focus();
+}
+
+function addChatMessage(role, text) {
+  const msgs = document.getElementById('chatMessages');
+  const isBot = role === 'bot';
+  const div = document.createElement('div');
+  div.style.cssText = `display:flex;justify-content:${isBot?'flex-start':'flex-end'};`;
+  div.innerHTML = `<div style="max-width:82%;padding:10px 14px;border-radius:${isBot?'4px 16px 16px 16px':'16px 4px 16px 16px'};background:${isBot?'#f5ede4':'var(--rose)'};color:${isBot?'var(--brown)':'white'};font-size:0.84rem;line-height:1.5;white-space:pre-wrap">${text}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addTypingIndicator() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.id = 'typingIndicator';
+  div.style.cssText = 'display:flex;justify-content:flex-start;';
+  div.innerHTML = `<div style="padding:10px 14px;border-radius:4px 16px 16px 16px;background:#f5ede4;font-size:0.84rem;color:#8a6555">
+    <span style="animation:blink 1s infinite">●</span> <span style="animation:blink 1s infinite 0.2s">●</span> <span style="animation:blink 1s infinite 0.4s">●</span>
+  </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addChatMessage('user', msg);
+  chatHistory.push({ role: 'user', content: msg });
+  addTypingIndicator();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        system: ABBY_INFO,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || '...';
+    document.getElementById('typingIndicator')?.remove();
+    addChatMessage('bot', reply);
+    chatHistory.push({ role: 'assistant', content: reply });
+    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+  } catch(e) {
+    document.getElementById('typingIndicator')?.remove();
+    addChatMessage('bot', lang === 'sw' ? 'Samahani, hitilafu imetokea. Jaribu tena.' : 'Sorry, something went wrong. Please try again.');
+  }
 }
 
 // INIT
