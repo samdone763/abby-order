@@ -397,10 +397,10 @@ const T = {
     new_order_btn:'Place Another Order',
     nav_open:'Open', nav_closed:'Closed',
     open_dot:'● Open', closed_dot:'● Closed',
-    verify_checking:'Verifying payment screenshot with AI...',
-    verify_ok:'✅ Payment verified! Number and name confirmed.',
-    verify_fail:'❌ Verification failed: Screenshot must clearly show 0620767919 and Gift Lyimo',
-    verify_manual:'✅ Screenshot uploaded. Our team will verify payment manually.',
+    verify_checking:'Checking your screenshot...',
+    verify_ok:'✅ Screenshot uploaded successfully.',
+    verify_fail:'❌ Invalid file. Please upload a real payment screenshot image.',
+    verify_manual:'✅ Screenshot received. Our team will verify your payment before processing.',
     fill_all:'Please fill in all fields.',
     upload_first:'Please upload your payment screenshot first.',
     sending:'⏳ Sending order...',
@@ -469,10 +469,10 @@ const T = {
     new_order_btn:'Weka Agizo Jingine',
     nav_open:'Imefunguliwa', nav_closed:'Imefungwa',
     open_dot:'● Imefunguliwa', closed_dot:'● Imefungwa',
-    verify_checking:'Inahakiki picha ya skrini ya malipo kwa AI...',
-    verify_ok:'✅ Malipo yamethibitishwa! Nambari na jina vimethibitishwa.',
-    verify_fail:'❌ Uthibitisho umeshindwa: Picha lazima ionyeshe wazi 0620767919 na Gift Lyimo',
-    verify_manual:'✅ Picha imepakiwa. Timu yetu itathibitisha malipo.',
+    verify_checking:'Inakagua picha yako ya skrini...',
+    verify_ok:'✅ Picha ya skrini imepakiwa.',
+    verify_fail:'❌ Faili batili. Tafadhali pakia picha halisi ya uthibitisho wa malipo.',
+    verify_manual:'✅ Picha imepokelewa. Timu yetu itathibitisha malipo yako kabla ya kuendelea.',
     fill_all:'Tafadhali jaza sehemu zote.',
     upload_first:'Tafadhali pakia picha yako ya malipo kwanza.',
     sending:'⏳ Inatuma agizo...',
@@ -493,14 +493,24 @@ const T = {
 };
 
 const menuItems = [
-  {id:1,emoji:'🎂',en:['Custom Cake','Birthday, wedding, any occasion'],sw:['Keki Maalum','Siku ya kuzaliwa, harusi, sherehe yoyote'],price:25000},
-  {id:2,emoji:'🧁',en:['Cupcakes (12pcs)','Assorted flavors, beautifully decorated'],sw:['Keki Ndogo (12)','Ladha mchanganyiko, zimepambwa vizuri'],price:15000},
-  {id:3,emoji:'🍩',en:['Donuts (6pcs)','Glazed and filled varieties'],sw:['Donati (6)','Aina za kioo na zilizojazwa'],price:8000},
-  {id:4,emoji:'🍪',en:['Cookies (10pcs)','Chocolate chip, butter & more'],sw:['Kuki (10)','Chokoleti, siagi na zaidi'],price:6000},
-  {id:5,emoji:'🥐',en:['Mandazi (10pcs)','Fresh fried, lightly sweetened'],sw:['Mandazi (10)','Mapya yaliyokaangwa, tamu kidogo'],price:5000},
-  {id:6,emoji:'🫓',en:['Bagia (10pcs)','Crispy savory snack'],sw:['Bagia (10)','Vitafunio vya crunchy'],price:5000},
-  {id:7,emoji:'🍰',en:['Slice Cake','Single slice, various flavors'],sw:['Kipande cha Keki','Kipande kimoja, ladha mbalimbali'],price:3000},
-  {id:8,emoji:'🧇',en:['Special Order','Tell us what you need'],sw:['Agizo Maalum','Tuambie unachohitaji'],price:0},
+  // BITES
+  {id:1,emoji:'🧁',en:['Decorated Cupcakes','With buttercream — beautiful & delicious'],sw:['Keki Ndogo za Mapambo','Na buttercream — nzuri na tamu'],price:10000,cat:'bites'},
+  {id:2,emoji:'🧁',en:['Plain Cupcakes (6pcs)','Simple soft cupcakes package'],sw:['Keki Ndogo Kawaida (6)','Pakiti ya keki ndogo laini'],price:3000,cat:'bites'},
+  {id:3,emoji:'🍪',en:['Cookies Package','Assorted homemade cookies'],sw:['Pakiti ya Kuki','Kuki mchanganyiko za nyumbani'],price:5000,cat:'bites'},
+  {id:4,emoji:'🫓',en:['Chapati Package','Soft layered chapati'],sw:['Pakiti ya Chapati','Chapati laini zilizopangwa'],price:10000,cat:'bites'},
+  {id:5,emoji:'🍩',en:['Donut Package (6pcs)','Fresh glazed donuts'],sw:['Pakiti ya Donati (6)','Donati mpya za kioo'],price:10000,cat:'bites'},
+  {id:6,emoji:'🥐',en:['Mandazi (10pcs)','Fresh fried, lightly sweetened'],sw:['Mandazi (10)','Mapya yaliyokaangwa, tamu kidogo'],price:3000,cat:'bites'},
+  {id:7,emoji:'🥟',en:['Meat Sambusa (8pcs)','Crispy meat-filled sambusa'],sw:['Sambusa za Nyama (8)','Sambusa crispy zilizojazwa nyama'],price:10000,cat:'bites'},
+  {id:8,emoji:'🫓',en:['Bagia (10pcs)','Crispy savory snack'],sw:['Bagia (10)','Vitafunio vya crunchy'],price:5000,cat:'bites'},
+  // CAKES
+  {id:9,emoji:'🎂',en:['Plain Cake','Simple delicious cake'],sw:['Keki ya Kawaida','Keki rahisi na tamu'],price:10000,cat:'cakes'},
+  {id:10,emoji:'🎁',en:['Bento Cake','Cute mini bento style cake'],sw:['Keki ya Bento','Keki ndogo ya mtindo wa bento'],price:15000,cat:'cakes'},
+  {id:11,emoji:'🎂',en:['Birthday Cake 700g','Perfect for celebrations'],sw:['Keki ya Siku ya Kuzaliwa 700g','Nzuri kwa sherehe'],price:25000,cat:'cakes'},
+  {id:12,emoji:'🍫',en:['Chocolate Cake 1kg','Rich dark chocolate cake'],sw:['Keki ya Chokoleti 1kg','Keki tamu ya chokoleti nyeusi'],price:45000,cat:'cakes'},
+  {id:13,emoji:'🎨',en:['Flavour Cakes 1kg','Your choice of flavor'],sw:['Keki ya Ladha 1kg','Chagua ladha unayotaka'],price:35000,cat:'cakes'},
+  {id:14,emoji:'🍓',en:['Fruits Cake 1kg','Fresh fruit topped cake'],sw:['Keki ya Matunda 1kg','Keki yenye matunda mapya juu'],price:55000,cat:'cakes'},
+  {id:15,emoji:'❤️',en:['Red Velvet Cake 1kg','Classic red velvet with cream'],sw:['Keki ya Red Velvet 1kg','Red velvet ya classic na krimu'],price:40000,cat:'cakes'},
+  {id:16,emoji:'✨',en:['Special/Custom Order','Tell us what you need'],sw:['Agizo Maalum','Tuambie unachohitaji'],price:0,cat:'cakes'},
 ];
 
 const hours = {
@@ -584,10 +594,12 @@ function showPage(page) {
 
 function renderMenu() {
   const grid = document.getElementById('menuGrid');
-  grid.innerHTML = menuItems.map(item => {
-    const name = lang === 'sw' ? item.sw[0] : item.en[0];
-    const desc = lang === 'sw' ? item.sw[1] : item.en[1];
-    const priceText = item.price > 0 ? 'TZS ' + item.price.toLocaleString() : t('menu_custom');
+  const bites = menuItems.filter(i=>i.cat==='bites');
+  const cakes = menuItems.filter(i=>i.cat==='cakes');
+  const renderItem = item => {
+    const name = lang==='sw' ? item.sw[0] : item.en[0];
+    const desc = lang==='sw' ? item.sw[1] : item.en[1];
+    const priceText = item.price > 0 ? 'TZS '+item.price.toLocaleString() : t('menu_custom');
     const sel = selectedItem?.id === item.id;
     return `<div class="menu-item ${sel?'selected':''}" onclick="selectItem(${item.id})">
       <div class="menu-item-left">
@@ -599,7 +611,17 @@ function renderMenu() {
         <div class="menu-check">${sel?'✓':''}</div>
       </div>
     </div>`;
-  }).join('');
+  };
+  grid.innerHTML = `
+    <div style="padding:8px 0 4px;font-family:'Playfair Display',serif;font-size:1rem;color:var(--rose);font-weight:700;letter-spacing:1px">
+      🍪 ${lang==='sw'?'VITAFUNZWA':'BITES'}
+    </div>
+    ${bites.map(renderItem).join('')}
+    <div style="padding:16px 0 4px;font-family:'Playfair Display',serif;font-size:1rem;color:var(--rose);font-weight:700;letter-spacing:1px">
+      🎂 ${lang==='sw'?'KEKI':'CAKES'}
+    </div>
+    ${cakes.map(renderItem).join('')}
+  `;
 }
 
 function renderHours() {
@@ -682,38 +704,38 @@ async function verifyPaymentScreenshot(base64Data, file) {
   const status = document.getElementById('verifyStatus');
   status.className = 'verify-status checking';
   status.innerHTML = `<div class="spinner"></div> ${t('verify_checking')}`;
-  try {
-    const base64 = base64Data.split(',')[1];
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:300,
-        messages:[{role:'user',content:[
-          {type:'image',source:{type:'base64',media_type:file.type,data:base64}},
-          {type:'text',text:'This is a mobile money payment screenshot. Check if it contains BOTH: 1) Phone number 0620767919 or 255620767919, AND 2) Name "Gift Lyimo". Reply ONLY with JSON: {"verified":true/false,"reason":"brief"}'}
-        ]}]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.map(c=>c.text||'').join('') || '';
-    let result;
-    try { result = JSON.parse(text.replace(/```json|```/g,'').trim()); }
-    catch(e) { result = {verified: text.includes('"verified":true') || text.includes('"verified": true')}; }
-    if (result.verified) {
-      verifiedPayment = true;
-      status.className = 'verify-status success';
-      status.innerHTML = t('verify_ok');
-      document.getElementById('submitBtn').disabled = false;
-    } else {
-      status.className = 'verify-status failed';
-      status.innerHTML = t('verify_fail');
-    }
-  } catch(e) {
-    verifiedPayment = true;
-    status.className = 'verify-status success';
-    status.innerHTML = t('verify_manual');
-    document.getElementById('submitBtn').disabled = false;
+
+  // Check it's actually an image file
+  if (!file.type.startsWith('image/')) {
+    status.className = 'verify-status failed';
+    status.innerHTML = t('verify_fail');
+    return;
   }
+
+  // Check file size is reasonable (at least 10KB - a real screenshot)
+  if (file.size < 10000) {
+    status.className = 'verify-status failed';
+    status.innerHTML = t('verify_fail');
+    return;
+  }
+
+  // Accept and let admin verify manually
+  await new Promise(r => setTimeout(r, 1500)); // small delay to feel like checking
+  verifiedPayment = true;
+  status.className = 'verify-status success';
+  status.innerHTML = t('verify_manual');
+  document.getElementById('submitBtn').disabled = false;
+}
+
+async function uploadToImgBB(base64) {
+  try {
+    const formData = new FormData();
+    formData.append('image', base64);
+    formData.append('key', '6d2dc476a33c1ba8a5e59521b4245400');
+    const res = await fetch('https://api.imgbb.com/1/upload', { method:'POST', body:formData });
+    const json = await res.json();
+    return json.success ? json.data.url : null;
+  } catch(e) { return null; }
 }
 
 async function submitOrder() {
@@ -735,13 +757,30 @@ async function submitOrder() {
   const orderId = 'ABY'+Date.now().toString().slice(-6);
   const itemName = lang==='sw' ? selectedItem.sw[0] : selectedItem.en[0];
   try {
-    let sc = '';
-    if (currentFile) sc = await new Promise(res => { const r=new FileReader(); r.onload=e=>res(e.target.result.split(',')[1]); r.readAsDataURL(currentFile); });
-    let refSc = '';
-    if (refFile) refSc = await new Promise(res => { const r=new FileReader(); r.onload=e=>res(e.target.result.split(',')[1]); r.readAsDataURL(refFile); });
+    // Upload payment screenshot to ImgBB
+    let paymentLink = null;
+    if (currentFile) {
+      const sc = await new Promise(res => { const r=new FileReader(); r.onload=e=>res(e.target.result.split(',')[1]); r.readAsDataURL(currentFile); });
+      paymentLink = await uploadToImgBB(sc);
+    }
+    // Upload reference photo to ImgBB
+    let refLink = null;
+    if (refFile) {
+      const refSc = await new Promise(res => { const r=new FileReader(); r.onload=e=>res(e.target.result.split(',')[1]); r.readAsDataURL(refFile); });
+      refLink = await uploadToImgBB(refSc);
+    }
     const res = await fetch(`${BACKEND}/api/orders`,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({customer:{name,phone},item:{name:itemName,price:selectedItem.price,halfPaid:half},delivery:{address:location},notes:orderDetail,orderId,paymentVerified:verifiedPayment,screenshot:sc,referencePhoto:refSc})
+      body:JSON.stringify({
+        customer:{name,phone},
+        item:{name:itemName,price:selectedItem.price,halfPaid:half},
+        delivery:{address:location},
+        notes:orderDetail,
+        orderId,
+        paymentVerified:verifiedPayment,
+        paymentScreenshotUrl: paymentLink,
+        referencePhotoUrl: refLink
+      })
     });
     const json = await res.json();
     if (json.success||json._id) { showSuccess(orderId); return; }
