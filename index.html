@@ -340,7 +340,10 @@
   <h2 id="success_title"></h2>
   <p id="success_msg"></p>
   <div class="success-order-id" id="successOrderId"></div>
-  <p style="font-size:0.8rem;color:#8a6555" id="success_sms"></p>
+  <p style="font-size:0.8rem;color:#8a6555;margin-bottom:16px" id="success_sms"></p>
+  <a id="waOrderBtn" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:white;border:none;padding:16px 28px;border-radius:30px;font-size:1rem;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;text-decoration:none;margin-bottom:12px;box-shadow:0 4px 16px rgba(37,211,102,0.4)">
+    <span style="font-size:1.4rem">💬</span> <span id="wa_send_btn"></span>
+  </a>
   <button class="new-order-btn" onclick="resetOrder()" id="new_order_btn"></button>
 </div>
 
@@ -401,6 +404,8 @@ const T = {
     success_msg:"Your order has been received. We'll contact you shortly to confirm and arrange delivery.",
     success_sms:'A notification has been sent to our team via SMS',
     new_order_btn:'Place Another Order',
+    wa_send_btn:'Send Order via WhatsApp',
+    wa_send_note:'Tap the button above to send your order details directly to us on WhatsApp',
     nav_open:'Open', nav_closed:'Closed',
     open_dot:'● Open', closed_dot:'● Closed',
     verify_checking:'Checking your screenshot...',
@@ -475,6 +480,8 @@ const T = {
     success_msg:'Agizo lako limepokelewa. Tutawasiliana nawe hivi karibuni kuthibitisha na kupanga uwasilishaji.',
     success_sms:'Arifa imetumwa kwa timu yetu kupitia SMS',
     new_order_btn:'Weka Agizo Jingine',
+    wa_send_btn:'Tuma Agizo kupitia WhatsApp',
+    wa_send_note:'Bonyeza kitufe hapo juu kutuma maelezo ya agizo lako moja kwa moja kwetu kwenye WhatsApp',
     nav_open:'Imefunguliwa', nav_closed:'Imefungwa',
     open_dot:'● Imefunguliwa', closed_dot:'● Imefungwa',
     verify_checking:'Inakagua picha yako ya skrini...',
@@ -552,7 +559,7 @@ const ids = [
   'admin_login_title','admin_user_label','admin_pass_label','admin_login_btn',
   'dashboard_title','logout_btn','tab_orders_btn','tab_gallery_admin_btn',
   'upload_photo_title','tap_select_text','caption_label','upload_btn_text','gallery_photos_title',
-  'success_title','success_msg','success_sms','new_order_btn',
+  'success_title','success_msg','success_sms','new_order_btn','wa_send_btn',
 ];
 
 function applyLanguage() {
@@ -765,15 +772,15 @@ async function submitOrder() {
   const half = selectedItem.price > 0 ? Math.ceil(selectedItem.price/2) : 0;
   const orderId = 'ABY'+Date.now().toString().slice(-6);
   const itemName = lang==='sw' ? selectedItem.sw[0] : selectedItem.en[0];
+  let paymentLink = null;
+  let refLink = null;
   try {
     // Upload payment screenshot to ImgBB
-    let paymentLink = null;
     if (currentFile) {
       const sc = await new Promise(res => { const r=new FileReader(); r.onload=e=>res(e.target.result.split(',')[1]); r.readAsDataURL(currentFile); });
       paymentLink = await uploadToImgBB(sc);
     }
     // Upload reference photo to ImgBB
-    let refLink = null;
     if (refFile) {
       const refSc = await new Promise(res => { const r=new FileReader(); r.onload=e=>res(e.target.result.split(',')[1]); r.readAsDataURL(refFile); });
       refLink = await uploadToImgBB(refSc);
@@ -792,13 +799,24 @@ async function submitOrder() {
       })
     });
     const json = await res.json();
-    if (json.success||json._id) { showSuccess(orderId); return; }
+    if (json.success||json._id) { showSuccess(orderId, {itemName, name, phone, location, half, paymentLink, refLink}); return; }
   } catch(e) {}
-  showSuccess(orderId);
+  showSuccess(orderId, {itemName, name, phone, location, half, paymentLink, refLink});
 }
 
-function showSuccess(orderId) {
+function showSuccess(orderId, orderData) {
   document.getElementById('successOrderId').textContent = t('order_prefix') + orderId;
+  // Build WhatsApp message
+  const itemName = orderData?.itemName || '';
+  const custName = orderData?.name || '';
+  const custPhone = orderData?.phone || '';
+  const location = orderData?.location || '';
+  const half = orderData?.half || '';
+  const payLink = orderData?.paymentLink ? `\n📸 Payment: ${orderData.paymentLink}` : '';
+  const refLink = orderData?.refLink ? `\n🖼 Reference: ${orderData.refLink}` : '';
+  const msg = `🎂 NEW ORDER!\nItem: ${itemName}\nCustomer: ${custName}\nPhone: ${custPhone}\nLocation: ${location}\nHalf Paid: TZS ${half}\nOrder ID: ${orderId}${payLink}${refLink}`;
+  const waUrl = `https://wa.me/255620767919?text=${encodeURIComponent(msg)}`;
+  document.getElementById('waOrderBtn').href = waUrl;
   document.getElementById('successScreen').classList.add('show');
 }
 
