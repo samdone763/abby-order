@@ -195,17 +195,21 @@
   <div class="section-title"><h2 id="order_title"></h2><p id="order_sub"></p></div>
   <div class="menu-grid" id="menuGrid"></div>
   <div class="order-section" id="orderForm" style="display:none">
-    <div class="amount-display">
-      <div class="amount-label" id="half_label"></div>
-      <div class="amount-value" id="halfAmount">TZS 0</div>
-      <div class="amount-note"><span id="send_to"></span> <strong>0620767919</strong> (Gift Lyimo)</div>
-    </div>
-    <div class="payment-box">
-      <h3>💳 <span id="pay_instructions"></span></h3>
-      <div class="payment-step"><div class="step-num">1</div><div class="step-text" id="pay_step1"></div></div>
-      <div class="payment-step"><div class="step-num">2</div><div class="step-text"><span id="pay_step2a"></span> <strong id="halfAmountSmall">TZS 0</strong> <span id="pay_step2b"></span> <strong>0620767919</strong> — <span id="name_label"></span> <strong>Gift Lyimo</strong></div></div>
-      <div class="payment-step"><div class="step-num">3</div><div class="step-text" id="pay_step3"></div></div>
-      <div class="payment-methods"><span class="pay-badge">📱 M-Pesa</span><span class="pay-badge">📱 Tigo Pesa</span><span class="pay-badge">📱 Airtel Money</span></div>
+    <!-- BIG PAYMENT ALERT -->
+    <div style="background:linear-gradient(135deg,#c97b6a,#e8a898);border-radius:20px;padding:20px;margin-bottom:16px;text-align:center;color:white">
+      <div style="font-size:1.8rem;margin-bottom:6px">💰</div>
+      <div style="font-size:0.8rem;opacity:0.9;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px" id="pay_alert_label"></div>
+      <div style="font-size:2rem;font-family:'Playfair Display',serif;font-weight:700;margin-bottom:6px" id="halfAmount">TZS 0</div>
+      <div style="font-size:0.9rem;opacity:0.95;margin-bottom:10px" id="pay_alert_msg"></div>
+      <div style="background:white;border-radius:12px;padding:10px 16px;display:inline-block">
+        <div style="font-size:1.1rem;font-weight:700;color:var(--rose)">📱 0620767919</div>
+        <div style="font-size:0.8rem;color:#8a6555">Gift Lyimo</div>
+      </div>
+      <div style="margin-top:12px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 M-Pesa</span>
+        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Tigo Pesa</span>
+        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Airtel Money</span>
+      </div>
     </div>
     <div id="alertBox"></div>
     <div class="form-group"><label class="form-label" id="field_name"></label><input class="form-input" id="custName" type="text"/></div>
@@ -363,7 +367,9 @@ const T = {
     how_step3:'Take a <strong>screenshot</strong> of your payment confirmation',
     how_step4:'Upload the screenshot — we verify it automatically and your order is sent!',
     order_title:'Place Your Order', order_sub:'Select an item then fill in your details',
-    half_label:'Half Payment Required', send_to:'Send to',
+    half_label:'Half Payment Required',
+    pay_alert_label:'⚠️ Pay This Amount First Before Submitting',
+    pay_alert_msg:'Send HALF the price to the number below, take a screenshot then fill the form below.', send_to:'Send to',
     pay_instructions:'Payment Instructions',
     pay_step1:'Open your mobile money app',
     pay_step2a:'Send', pay_step2b:'to number', name_label:'name:',
@@ -435,7 +441,9 @@ const T = {
     how_step3:'Piga <strong>picha ya skrini</strong> ya uthibitisho wa malipo yako',
     how_step4:'Pakia picha ya skrini — tunaihakiki kiotomatiki na agizo lako linatumwa!',
     order_title:'Weka Agizo Lako', order_sub:'Chagua bidhaa kisha jaza maelezo yako',
-    half_label:'Nusu ya Malipo Inahitajika', send_to:'Tuma kwa',
+    half_label:'Nusu ya Malipo Inahitajika',
+    pay_alert_label:'⚠️ Lipa Kiasi Hiki Kwanza Kabla ya Kutuma',
+    pay_alert_msg:'Tuma NUSU ya bei kwa nambari iliyo chini, piga picha ya skrini kisha jaza fomu hapa chini.', send_to:'Tuma kwa',
     pay_instructions:'Maelekezo ya Malipo',
     pay_step1:'Fungua programu yako ya pesa za simu',
     pay_step2a:'Tuma', pay_step2b:'kwa nambari', name_label:'jina:',
@@ -534,7 +542,7 @@ const ids = [
   'label_location','label_phone','label_hours','label_delivery','delivery_val',
   'opening_hours','opening_sub','how_order','how_order_sub',
   'how_step1','how_step2','how_step3','how_step4',
-  'order_title','order_sub','half_label','send_to','pay_instructions',
+  'order_title','order_sub','half_label','pay_alert_label','pay_alert_msg','send_to','pay_instructions',
   'pay_step1','pay_step2a','pay_step2b','name_label','pay_step3',
   'field_name','field_phone','field_location','field_order','field_reference','ref_upload_text','ref_optional_note','field_screenshot',
   'upload_text','submitBtn','no_item',
@@ -663,7 +671,8 @@ function selectItem(id) {
   const half = selectedItem.price > 0 ? Math.ceil(selectedItem.price/2) : 0;
   const halfText = half > 0 ? 'TZS '+half.toLocaleString() : t('menu_custom');
   document.getElementById('halfAmount').textContent = halfText;
-  document.getElementById('halfAmountSmall').textContent = halfText;
+  const hAS = document.getElementById('halfAmountSmall');
+  if (hAS) hAS.textContent = halfText;
   const name = lang==='sw' ? selectedItem.sw[0] : selectedItem.en[0];
   document.getElementById('custOrder').value = selectedItem.price > 0 ? name+' - ' : '';
   document.getElementById('orderForm').style.display = 'block';
