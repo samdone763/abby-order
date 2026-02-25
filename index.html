@@ -195,6 +195,16 @@
   <div class="section-title"><h2 id="order_title"></h2><p id="order_sub"></p></div>
   <div class="menu-grid" id="menuGrid"></div>
   <div class="order-section" id="orderForm" style="display:none">
+    <!-- QUANTITY SELECTOR -->
+    <div style="background:white;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
+      <div style="font-size:0.85rem;color:#8a6555;margin-bottom:10px;font-weight:600" id="qty_label">🔢 How many do you want?</div>
+      <div style="display:flex;align-items:center;gap:16px;justify-content:center">
+        <button onclick="changeQty(-1)" style="width:40px;height:40px;border-radius:50%;background:var(--cream);border:2px solid var(--blush);font-size:1.3rem;cursor:pointer;color:var(--rose);font-weight:700">−</button>
+        <div style="font-size:1.8rem;font-weight:700;color:var(--brown);min-width:40px;text-align:center" id="qtyDisplay">1</div>
+        <button onclick="changeQty(1)" style="width:40px;height:40px;border-radius:50%;background:var(--cream);border:2px solid var(--blush);font-size:1.3rem;cursor:pointer;color:var(--rose);font-weight:700">+</button>
+      </div>
+    </div>
+
     <!-- BIG PAYMENT ALERT -->
     <div style="background:linear-gradient(135deg,#c97b6a,#e8a898);border-radius:20px;padding:20px;margin-bottom:16px;text-align:center;color:white">
       <div style="font-size:1.8rem;margin-bottom:6px">💰</div>
@@ -203,12 +213,12 @@
       <div style="font-size:0.9rem;opacity:0.95;margin-bottom:10px" id="pay_alert_msg"></div>
       <div style="background:white;border-radius:12px;padding:10px 16px;display:inline-block">
         <div style="font-size:1.1rem;font-weight:700;color:var(--rose)">📱 0620767919</div>
-        <div style="font-size:0.8rem;color:#8a6555">Gift Lyimo</div>
       </div>
       <div style="margin-top:12px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
-        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 M-Pesa</span>
-        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Tigo Pesa</span>
+        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Halopesa</span>
         <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Airtel Money</span>
+        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Vodacom</span>
+        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Yas by Mixx</span>
       </div>
     </div>
     <div id="alertBox"></div>
@@ -235,6 +245,11 @@
         <img id="previewImg" class="preview-img" style="display:none"/>
       </div>
       <div class="verify-status" id="verifyStatus"></div>
+      <!-- BOT VERIFICATION MESSAGE -->
+      <div id="botVerifyMsg" style="display:none;margin-top:12px;background:#fff8f0;border:2px solid var(--blush);border-radius:14px;padding:14px;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:6px">🤖</div>
+        <div style="font-size:0.85rem;color:var(--brown);font-weight:600" id="bot_verify_text"></div>
+      </div>
     </div>
     <button class="submit-btn" id="submitBtn" onclick="submitOrder()" disabled></button>
   </div>
@@ -399,7 +414,9 @@ const T = {
     order_title:'Place Your Order', order_sub:'Select an item then fill in your details',
     half_label:'Half Payment Required',
     pay_alert_label:'⚠️ Pay This Amount First Before Submitting',
-    pay_alert_msg:'Send HALF the price to the number below, take a screenshot then fill the form below.', send_to:'Send to',
+    pay_alert_msg:'Send HALF the price to the number below, take a screenshot then fill the form below.',
+    qty_label:'🔢 How many do you want?',
+    bot_verify_text:'To confirm your payment, tap the 🤖 robot button and upload your screenshot in the chat for verification.', send_to:'Send to',
     pay_instructions:'Payment Instructions',
     pay_step1:'Open your mobile money app',
     pay_step2a:'Send', pay_step2b:'to number', name_label:'name:',
@@ -478,7 +495,9 @@ const T = {
     order_title:'Weka Agizo Lako', order_sub:'Chagua bidhaa kisha jaza maelezo yako',
     half_label:'Nusu ya Malipo Inahitajika',
     pay_alert_label:'⚠️ Lipa Kiasi Hiki Kwanza Kabla ya Kutuma',
-    pay_alert_msg:'Tuma NUSU ya bei kwa nambari iliyo chini, piga picha ya skrini kisha jaza fomu hapa chini.', send_to:'Tuma kwa',
+    pay_alert_msg:'Tuma NUSU ya bei kwa nambari iliyo chini, piga picha ya skrini kisha jaza fomu hapa chini.',
+    qty_label:'🔢 Unataka ngapi?',
+    bot_verify_text:'Ili kuthibitisha malipo yako, bonyeza kitufe cha 🤖 na upakiwe picha ya skrini kwenye mazungumzo kwa uthibitisho.', send_to:'Tuma kwa',
     pay_instructions:'Maelekezo ya Malipo',
     pay_step1:'Fungua programu yako ya pesa za simu',
     pay_step2a:'Tuma', pay_step2b:'kwa nambari', name_label:'jina:',
@@ -570,6 +589,7 @@ let selectedItem = null;
 let verifiedPayment = false;
 let adminToken = null;
 let currentFile = null;
+let orderQty = 1;
 
 function t(k) { return (T[lang] && T[lang][k]) || (T.en[k]) || k; }
 
@@ -579,7 +599,7 @@ const ids = [
   'label_location','label_phone','label_hours','label_delivery','delivery_val',
   'opening_hours','opening_sub','how_order','how_order_sub',
   'how_step1','how_step2','how_step3','how_step4',
-  'order_title','order_sub','half_label','pay_alert_label','pay_alert_msg','send_to','pay_instructions',
+  'order_title','order_sub','half_label','pay_alert_label','pay_alert_msg','qty_label','bot_verify_text','send_to','pay_instructions',
   'pay_step1','pay_step2a','pay_step2b','name_label','pay_step3',
   'field_name','field_phone','field_location','field_order','field_reference','ref_upload_text','ref_optional_note','field_screenshot',
   'upload_text','submitBtn','no_item',
@@ -702,14 +722,28 @@ function checkOpenStatus() {
   if (openEl) { openEl.textContent = isOpen ? t('open_dot') : t('closed_dot'); openEl.style.color = isOpen ? 'var(--green)' : 'var(--rose)'; }
 }
 
-function selectItem(id) {
-  selectedItem = menuItems.find(i => i.id === id);
-  renderMenu();
-  const half = selectedItem.price > 0 ? Math.ceil(selectedItem.price/2) : 0;
-  const halfText = half > 0 ? 'TZS '+half.toLocaleString() : t('menu_custom');
+function changeQty(delta) {
+  orderQty = Math.max(1, orderQty + delta);
+  document.getElementById('qtyDisplay').textContent = orderQty;
+  updateHalfAmount();
+}
+
+function updateHalfAmount() {
+  if (!selectedItem) return;
+  const total = selectedItem.price * orderQty;
+  const half = total > 0 ? Math.ceil(total / 2) : 0;
+  const halfText = half > 0 ? 'TZS ' + half.toLocaleString() : t('menu_custom');
   document.getElementById('halfAmount').textContent = halfText;
   const hAS = document.getElementById('halfAmountSmall');
   if (hAS) hAS.textContent = halfText;
+}
+
+function selectItem(id) {
+  selectedItem = menuItems.find(i => i.id === id);
+  orderQty = 1;
+  document.getElementById('qtyDisplay').textContent = '1';
+  renderMenu();
+  updateHalfAmount();
   const name = lang==='sw' ? selectedItem.sw[0] : selectedItem.en[0];
   document.getElementById('custOrder').value = selectedItem.price > 0 ? name+' - ' : '';
   document.getElementById('orderForm').style.display = 'block';
@@ -765,12 +799,26 @@ async function verifyPaymentScreenshot(base64Data, file) {
     return;
   }
 
-  // Accept and let admin verify manually
-  await new Promise(r => setTimeout(r, 1500)); // small delay to feel like checking
+  // Accept and let bot verify via chat
+  await new Promise(r => setTimeout(r, 1500));
   verifiedPayment = true;
   status.className = 'verify-status success';
   status.innerHTML = t('verify_manual');
   document.getElementById('submitBtn').disabled = false;
+  // Show bot verification message
+  document.getElementById('botVerifyMsg').style.display = 'block';
+  document.getElementById('bot_verify_text').textContent = t('bot_verify_text');
+  // Open chatbot automatically and start verification flow
+  if (!chatOpen) toggleChat();
+  setTimeout(() => {
+    const half = selectedItem ? Math.ceil((selectedItem.price * orderQty) / 2) : 0;
+    const verifyPrompt = lang === 'sw'
+      ? `Mtumiaji amepakia picha ya malipo. Anahitaji kuthibitisha malipo ya TZS ${half.toLocaleString()} kwa nambari 0620767919. Muulize: 1) Mtandao uliotumia (Halopesa/Airtel/Vodacom/Yas) 2) Kiasi kilichoonyeshwa kwenye ujumbe 3) Nambari ya muamala/reference. Ikiwa majibu yanafanana na TZS ${half.toLocaleString()} kwa 0620767919, mwambie malipo yamethibitishwa na agizo linaweza kuendelea.`
+      : `The customer has uploaded a payment screenshot. They need to verify payment of TZS ${half.toLocaleString()} to number 0620767919. Ask them: 1) Which network they used (Halopesa/Airtel/Vodacom/Yas) 2) The exact amount shown in their confirmation message 3) The transaction/reference number. If answers match TZS ${half.toLocaleString()} to 0620767919, tell them payment is verified and order can proceed.`;
+    chatHistory.push({ role: 'user', content: verifyPrompt });
+    addChatMessage('user', lang === 'sw' ? '📸 Nimepakia picha ya malipo yangu' : '📸 I have uploaded my payment screenshot');
+    sendChatToBot();
+  }, 500);
 }
 
 async function uploadToImgBB(base64) {
@@ -804,9 +852,10 @@ async function submitOrder() {
   alertBox.innerHTML = '';
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = t('sending');
-  const half = selectedItem.price > 0 ? Math.ceil(selectedItem.price/2) : 0;
+  const half = selectedItem.price > 0 ? Math.ceil((selectedItem.price * orderQty) / 2) : 0;
+  const total = selectedItem.price * orderQty;
   const orderId = 'ABY'+Date.now().toString().slice(-6);
-  const itemName = lang==='sw' ? selectedItem.sw[0] : selectedItem.en[0];
+  const itemName = (lang==='sw' ? selectedItem.sw[0] : selectedItem.en[0]) + (orderQty > 1 ? ` x${orderQty}` : '');
   let paymentLink = null;
   let refLink = null;
   try {
@@ -857,10 +906,12 @@ function showSuccess(orderId, orderData) {
 
 function resetOrder() {
   document.getElementById('successScreen').classList.remove('show');
-  selectedItem = null; verifiedPayment = false; currentFile = null; refFile = null;
+  selectedItem = null; verifiedPayment = false; currentFile = null; refFile = null; orderQty = 1;
   renderMenu();
   document.getElementById('orderForm').style.display = 'none';
   document.getElementById('noItemSelected').style.display = 'block';
+  document.getElementById('qtyDisplay').textContent = '1';
+  document.getElementById('botVerifyMsg').style.display = 'none';
   ['custName','custPhone','custLocation','custOrder'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('previewImg').style.display = 'none';
   document.getElementById('refPreviewImg').style.display = 'none';
@@ -1078,13 +1129,7 @@ function addTypingIndicator() {
   msgs.scrollTop = msgs.scrollHeight;
 }
 
-async function sendChat() {
-  const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
-  if (!msg) return;
-  input.value = '';
-  addChatMessage('user', msg);
-  chatHistory.push({ role: 'user', content: msg });
+async function sendChatToBot() {
   addTypingIndicator();
   try {
     const res = await fetch(`${BACKEND}/api/chat`, {
@@ -1104,8 +1149,22 @@ async function sendChat() {
   }
 }
 
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addChatMessage('user', msg);
+  chatHistory.push({ role: 'user', content: msg });
+  await sendChatToBot();
+}
+
 // INIT
 applyLanguage();
 </script>
+<div style="text-align:center;padding:20px;font-size:0.75rem;color:#b08a7a;border-top:1px solid #f0e0d6;margin-top:20px">
+  Generated by <strong>Sam Done</strong> · 0619066079
+</div>
+
 </body>
 </html>
