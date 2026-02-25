@@ -227,6 +227,23 @@
     <div class="form-group"><label class="form-label" id="field_phone"></label><input class="form-input" id="custPhone" placeholder="e.g. 0712345678" type="tel"/></div>
     <div class="form-group"><label class="form-label" id="field_location"></label><textarea class="form-textarea" id="custLocation"></textarea></div>
     <div class="form-group"><label class="form-label" id="field_order"></label><textarea class="form-textarea" id="custOrder"></textarea></div>
+
+    <!-- DELIVERY DATE & TIME -->
+    <div style="background:white;border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06)">
+      <div style="font-size:0.9rem;font-weight:600;color:var(--brown);margin-bottom:12px">📅 <span id="delivery_section_title"></span></div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label" id="field_delivery_date"></label>
+        <input class="form-input" id="deliveryDate" type="date" min="" style="font-family:'DM Sans',sans-serif"/>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label" id="field_delivery_time"></label>
+        <input class="form-input" id="deliveryTime" type="time" style="font-family:'DM Sans',sans-serif"/>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label" id="field_meeting_place"></label>
+        <input class="form-input" id="meetingPlace" type="text" id="ph_meeting"/>
+      </div>
+    </div>
     <div class="form-group">
       <label class="form-label" id="field_reference"></label>
       <div class="upload-area" id="refUploadArea" onclick="document.getElementById('refFileInput').click()">
@@ -424,6 +441,11 @@ const T = {
     pay_step3:'Take a screenshot of the <strong>confirmation message</strong> showing the number and name',
     field_name:'Your Full Name *', field_phone:'Phone Number *',
     field_location:'Delivery Location / Description *', field_order:'Order Details *',
+    delivery_section_title:'When & Where do you need your order?',
+    field_delivery_date:'📅 Delivery Date *',
+    field_delivery_time:'⏰ Delivery Time *',
+    field_meeting_place:'📍 Famous Meeting Place Near You *',
+    ph_meeting:'e.g. Near the market, church, mosque, school, hospital...',
     field_reference:'Reference Photo (Optional) 🖼',
     ref_upload_text:'Tap to upload a <strong>reference photo</strong> showing what you want<br><span style="font-size:0.75rem">e.g. cake design, color, style you like</span>',
     ref_optional_note:'Optional — helps us understand exactly what you want',
@@ -505,6 +527,11 @@ const T = {
     pay_step3:'Piga picha ya skrini ya <strong>ujumbe wa uthibitisho</strong> unaoonyesha nambari na jina',
     field_name:'Jina Lako Kamili *', field_phone:'Nambari ya Simu *',
     field_location:'Mahali pa Uwasilishaji / Maelezo *', field_order:'Maelezo ya Agizo *',
+    delivery_section_title:'Unahitaji agizo lako lini na wapi?',
+    field_delivery_date:'📅 Tarehe ya Uwasilishaji *',
+    field_delivery_time:'⏰ Wakati wa Uwasilishaji *',
+    field_meeting_place:'📍 Mahali Maarufu Karibu Nawe *',
+    ph_meeting:'mfano: Karibu na soko, kanisa, msikiti, shule, hospitali...',
     field_reference:'Picha ya Mfano (Si Lazima) 🖼',
     ref_upload_text:'Bonyeza kupakia <strong>picha ya mfano</strong> inayoonyesha unachotaka<br><span style="font-size:0.75rem">mfano: muundo wa keki, rangi, mtindo unaopenda</span>',
     ref_optional_note:'Si lazima — inatusaidia kuelewa vizuri unachotaka',
@@ -603,7 +630,8 @@ const ids = [
   'how_step1','how_step2','how_step3','how_step4',
   'order_title','order_sub','half_label','pay_alert_label','pay_alert_msg','qty_label','bot_verify_text','send_to','pay_instructions',
   'pay_step1','pay_step2a','pay_step2b','name_label','pay_step3',
-  'field_name','field_phone','field_location','field_order','field_reference','ref_upload_text','ref_optional_note','field_screenshot',
+  'field_name','field_phone','field_location','field_order',
+  'delivery_section_title','field_delivery_date','field_delivery_time','field_meeting_place','field_reference','ref_upload_text','ref_optional_note','field_screenshot',
   'upload_text','submitBtn','no_item',
   'gallery_title','gallery_sub','gallery_empty',
   'settings_title','settings_sub','lang_heading','lang_info',
@@ -625,11 +653,14 @@ function applyLanguage() {
     if (val) el.innerHTML = val;
   });
   // Placeholders
-  const phMap = {custName:'ph_name',custLocation:'ph_location',custOrder:'ph_order',galleryCaption:'ph_caption'};
+  const phMap = {custName:'ph_name',custLocation:'ph_location',custOrder:'ph_order',galleryCaption:'ph_caption',meetingPlace:'ph_meeting'};
   Object.entries(phMap).forEach(([id,key]) => {
     const el = document.getElementById(id);
     if (el) el.placeholder = t(key);
   });
+  // Set min date to today
+  const dd = document.getElementById('deliveryDate');
+  if (dd) dd.min = new Date().toISOString().split('T')[0];
   // Lang buttons
   document.getElementById('lang-en').classList.toggle('active', lang === 'en');
   document.getElementById('lang-sw').classList.toggle('active', lang === 'sw');
@@ -844,8 +875,11 @@ async function submitOrder() {
   const phone = document.getElementById('custPhone').value.trim();
   const location = document.getElementById('custLocation').value.trim();
   const orderDetail = document.getElementById('custOrder').value.trim();
+  const deliveryDate = document.getElementById('deliveryDate').value;
+  const deliveryTime = document.getElementById('deliveryTime').value;
+  const meetingPlace = document.getElementById('meetingPlace').value.trim();
   const alertBox = document.getElementById('alertBox');
-  if (!name||!phone||!location||!orderDetail) {
+  if (!name||!phone||!location||!orderDetail||!deliveryDate||!deliveryTime||!meetingPlace) {
     alertBox.innerHTML = `<div class="alert alert-error">${t('fill_all')}</div>`; return;
   }
   if (!verifiedPayment) {
@@ -875,8 +909,8 @@ async function submitOrder() {
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         customer:{name,phone},
-        item:{name:itemName,price:selectedItem.price,halfPaid:half},
-        delivery:{address:location},
+        item:{name:itemName,price:selectedItem.price,halfPaid:half,quantity:orderQty,total},
+        delivery:{address:location, date:deliveryDate, time:deliveryTime, meetingPlace},
         notes:orderDetail,
         orderId,
         paymentVerified:verifiedPayment,
@@ -885,9 +919,9 @@ async function submitOrder() {
       })
     });
     const json = await res.json();
-    if (json.success||json._id) { showSuccess(orderId, {itemName, name, phone, location, half, total, paymentLink, refLink}); return; }
+    if (json.success||json._id) { showSuccess(orderId, {itemName, name, phone, location, half, total, paymentLink, refLink, deliveryDate, deliveryTime, meetingPlace}); return; }
   } catch(e) {}
-  showSuccess(orderId, {itemName, name, phone, location, half, total, paymentLink, refLink});
+  showSuccess(orderId, {itemName, name, phone, location, half, total, paymentLink, refLink, deliveryDate, deliveryTime, meetingPlace});
 }
 
 function showSuccess(orderId, orderData) {
@@ -898,15 +932,18 @@ function showSuccess(orderId, orderData) {
   const location = orderData?.location || '';
   const half = orderData?.half || '';
   const total = orderData?.total || '';
+  const deliveryDate = orderData?.deliveryDate || '';
+  const deliveryTime = orderData?.deliveryTime || '';
+  const meetingPlace = orderData?.meetingPlace || '';
   const payLink = orderData?.paymentLink ? `\n📸 Payment: ${orderData.paymentLink}` : '';
   const refLink = orderData?.refLink ? `\n🖼 Reference: ${orderData.refLink}` : '';
   const senderLine = senderName ? `\n💳 Paid by: ${senderName}` : '';
-  const msg = `🎂 NEW ORDER - Abby Cake & Bites\n━━━━━━━━━━━━━━\nItem: ${itemName}\nCustomer: ${custName}\nPhone: ${custPhone}\nLocation: ${location}\n━━━━━━━━━━━━━━\nTotal: TZS ${total}\nHalf Paid: TZS ${half}${senderLine}\nOrder ID: ${orderId}${payLink}${refLink}\n━━━━━━━━━━━━━━\nPlease confirm this order.`;
-  // Non-editable WhatsApp link using wa.me with encoded message
+  const deliveryLine = deliveryDate ? `\n📅 Delivery: ${deliveryDate} at ${deliveryTime}` : '';
+  const meetingLine = meetingPlace ? `\n📍 Meeting Point: ${meetingPlace}` : '';
+  const msg = `🎂 NEW ORDER - Abby Cake & Bites\n━━━━━━━━━━━━━━\nItem: ${itemName}\nCustomer: ${custName}\nPhone: ${custPhone}\nLocation: ${location}${deliveryLine}${meetingLine}\n━━━━━━━━━━━━━━\nTotal: TZS ${total}\nHalf Paid: TZS ${half}${senderLine}\nOrder ID: ${orderId}${payLink}${refLink}\n━━━━━━━━━━━━━━\nPlease confirm this order.`;
   const waUrl = `https://wa.me/255620767919?text=${encodeURIComponent(msg)}`;
   document.getElementById('waOrderBtn').href = waUrl;
   document.getElementById('waOrderBtn').onclick = function(e) {
-    // Prevent any editing by opening directly
     e.preventDefault();
     window.open(waUrl, '_blank');
   };
@@ -921,7 +958,9 @@ function resetOrder() {
   document.getElementById('noItemSelected').style.display = 'block';
   document.getElementById('qtyDisplay').textContent = '1';
   document.getElementById('botVerifyMsg').style.display = 'none';
-  ['custName','custPhone','custLocation','custOrder'].forEach(id => document.getElementById(id).value = '');
+  ['custName','custPhone','custLocation','custOrder','meetingPlace'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  const dd = document.getElementById('deliveryDate'); if(dd) dd.value='';
+  const dt = document.getElementById('deliveryTime'); if(dt) dt.value='';
   document.getElementById('previewImg').style.display = 'none';
   document.getElementById('refPreviewImg').style.display = 'none';
   document.getElementById('uploadArea').classList.remove('has-file');
