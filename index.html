@@ -213,12 +213,13 @@
       <div style="font-size:0.9rem;opacity:0.95;margin-bottom:10px" id="pay_alert_msg"></div>
       <div style="background:white;border-radius:12px;padding:10px 16px;display:inline-block">
         <div style="font-size:1.1rem;font-weight:700;color:var(--rose)">📱 0620767919</div>
+        <div style="font-size:0.8rem;color:#8a6555">Gift Lyimo</div>
       </div>
       <div style="margin-top:12px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
         <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Halopesa</span>
         <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Airtel Money</span>
-        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Vodacom</span>
-        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Yas by Mixx</span>
+        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Vodacom M-Pesa</span>
+        <span style="background:rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:0.75rem">📱 Tigo Pesa (Mixx by Yas)</span>
       </div>
     </div>
     <div id="alertBox"></div>
@@ -590,6 +591,7 @@ let verifiedPayment = false;
 let adminToken = null;
 let currentFile = null;
 let orderQty = 1;
+let senderName = '';
 
 function t(k) { return (T[lang] && T[lang][k]) || (T.en[k]) || k; }
 
@@ -813,11 +815,11 @@ async function verifyPaymentScreenshot(base64Data, file) {
   setTimeout(() => {
     const half = selectedItem ? Math.ceil((selectedItem.price * orderQty) / 2) : 0;
     const verifyPrompt = lang === 'sw'
-      ? `Mtumiaji amepakia picha ya malipo. Anahitaji kuthibitisha malipo ya TZS ${half.toLocaleString()} kwa nambari 0620767919. Muulize: 1) Mtandao uliotumia (Halopesa/Airtel/Vodacom/Yas) 2) Kiasi kilichoonyeshwa kwenye ujumbe 3) Nambari ya muamala/reference. Ikiwa majibu yanafanana na TZS ${half.toLocaleString()} kwa 0620767919, mwambie malipo yamethibitishwa na agizo linaweza kuendelea.`
-      : `The customer has uploaded a payment screenshot. They need to verify payment of TZS ${half.toLocaleString()} to number 0620767919. Ask them: 1) Which network they used (Halopesa/Airtel/Vodacom/Yas) 2) The exact amount shown in their confirmation message 3) The transaction/reference number. If answers match TZS ${half.toLocaleString()} to 0620767919, tell them payment is verified and order can proceed.`;
+      ? `Mtumiaji amepakia picha ya malipo ya TZS ${half.toLocaleString()} kwa 0620767919 (Gift Lyimo). Muulize jina lake kamili alilotumia kulipa tu (jina aliloweka wakati wa kutuma pesa). Baada ya kupata jina, mhakikishie kwamba malipo yamepokewa na umwambie aendelee na agizo.`
+      : `The customer uploaded a payment screenshot of TZS ${half.toLocaleString()} to 0620767919 (Gift Lyimo). Ask them ONLY for their full name as it appears on the payment confirmation (the name they used to send money). After getting the name, confirm payment is received and tell them to proceed with the order.`;
     chatHistory.push({ role: 'user', content: verifyPrompt });
-    addChatMessage('user', lang === 'sw' ? '📸 Nimepakia picha ya malipo yangu' : '📸 I have uploaded my payment screenshot');
-    sendChatToBot();
+    addChatMessage('bot', lang === 'sw' ? '👋 Habari! Niambie jina lako kamili uliloitumia kulipa ili nithibitishe malipo yako.' : '👋 Hi! Please tell me your full name as it appears on your payment confirmation so I can verify your payment.');
+    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
   }, 500);
 }
 
@@ -883,30 +885,37 @@ async function submitOrder() {
       })
     });
     const json = await res.json();
-    if (json.success||json._id) { showSuccess(orderId, {itemName, name, phone, location, half, paymentLink, refLink}); return; }
+    if (json.success||json._id) { showSuccess(orderId, {itemName, name, phone, location, half, total, paymentLink, refLink}); return; }
   } catch(e) {}
-  showSuccess(orderId, {itemName, name, phone, location, half, paymentLink, refLink});
+  showSuccess(orderId, {itemName, name, phone, location, half, total, paymentLink, refLink});
 }
 
 function showSuccess(orderId, orderData) {
   document.getElementById('successOrderId').textContent = t('order_prefix') + orderId;
-  // Build WhatsApp message
   const itemName = orderData?.itemName || '';
   const custName = orderData?.name || '';
   const custPhone = orderData?.phone || '';
   const location = orderData?.location || '';
   const half = orderData?.half || '';
+  const total = orderData?.total || '';
   const payLink = orderData?.paymentLink ? `\n📸 Payment: ${orderData.paymentLink}` : '';
   const refLink = orderData?.refLink ? `\n🖼 Reference: ${orderData.refLink}` : '';
-  const msg = `🎂 NEW ORDER!\nItem: ${itemName}\nCustomer: ${custName}\nPhone: ${custPhone}\nLocation: ${location}\nHalf Paid: TZS ${half}\nOrder ID: ${orderId}${payLink}${refLink}`;
+  const senderLine = senderName ? `\n💳 Paid by: ${senderName}` : '';
+  const msg = `🎂 NEW ORDER - Abby Cake & Bites\n━━━━━━━━━━━━━━\nItem: ${itemName}\nCustomer: ${custName}\nPhone: ${custPhone}\nLocation: ${location}\n━━━━━━━━━━━━━━\nTotal: TZS ${total}\nHalf Paid: TZS ${half}${senderLine}\nOrder ID: ${orderId}${payLink}${refLink}\n━━━━━━━━━━━━━━\nPlease confirm this order.`;
+  // Non-editable WhatsApp link using wa.me with encoded message
   const waUrl = `https://wa.me/255620767919?text=${encodeURIComponent(msg)}`;
   document.getElementById('waOrderBtn').href = waUrl;
+  document.getElementById('waOrderBtn').onclick = function(e) {
+    // Prevent any editing by opening directly
+    e.preventDefault();
+    window.open(waUrl, '_blank');
+  };
   document.getElementById('successScreen').classList.add('show');
 }
 
 function resetOrder() {
   document.getElementById('successScreen').classList.remove('show');
-  selectedItem = null; verifiedPayment = false; currentFile = null; refFile = null; orderQty = 1;
+  selectedItem = null; verifiedPayment = false; currentFile = null; refFile = null; orderQty = 1; senderName = '';
   renderMenu();
   document.getElementById('orderForm').style.display = 'none';
   document.getElementById('noItemSelected').style.display = 'block';
@@ -1143,6 +1152,17 @@ async function sendChatToBot() {
     addChatMessage('bot', reply);
     chatHistory.push({ role: 'assistant', content: reply });
     if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+    // Try to extract sender name from chat history
+    if (!senderName && chatHistory.length > 2) {
+      const userMsgs = chatHistory.filter(m => m.role === 'user' && m.content.length > 1 && m.content.length < 60);
+      if (userMsgs.length > 0) {
+        const lastUserMsg = userMsgs[userMsgs.length - 1].content;
+        // If it looks like a name (not a question or long sentence)
+        if (!lastUserMsg.includes('?') && lastUserMsg.split(' ').length <= 5) {
+          senderName = lastUserMsg;
+        }
+      }
+    }
   } catch(e) {
     document.getElementById('typingIndicator')?.remove();
     addChatMessage('bot', lang === 'sw' ? 'Samahani, hitilafu imetokea. Jaribu tena.' : 'Sorry, something went wrong. Please try again.');
