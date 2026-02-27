@@ -971,7 +971,7 @@ function resetOrder() {
   showPage('order');
 }
 
-async function loadGallery() {
+async function loadGallery(retry = true) {
   try {
     const res = await fetch(`${BACKEND}/api/gallery`);
     const json = await res.json();
@@ -980,8 +980,13 @@ async function loadGallery() {
         const src = p.url || (p.imageData ? 'data:image/jpeg;base64,' + p.imageData : '');
         return `<div><div class="gallery-item"><img src="${src}" alt="${p.caption||''}" loading="lazy"/></div><div class="gallery-caption">${p.caption||''}</div></div>`;
       }).join('');
+    } else if (retry) {
+      // Backend might be waking up, retry after 4 seconds
+      setTimeout(() => loadGallery(false), 4000);
     }
-  } catch(e) {}
+  } catch(e) {
+    if (retry) setTimeout(() => loadGallery(false), 4000);
+  }
 }
 
 function adminLogin() {
@@ -1219,6 +1224,10 @@ async function sendChat() {
 }
 
 // INIT
+// Wake up backend immediately on page load
+fetch(`${BACKEND}/api/health`).catch(()=>{});
+// Also reload gallery after 5 seconds to catch slow backend wake
+setTimeout(() => { if(document.getElementById('page-gallery').classList.contains('active')) loadGallery(); }, 5000);
 applyLanguage();
 </script>
 <div style="text-align:center;padding:20px;font-size:0.75rem;color:#b08a7a;border-top:1px solid #f0e0d6;margin-top:20px">
