@@ -1241,8 +1241,13 @@ const dismissBtn = document.getElementById('dismissBtn');
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
+});
+
+setTimeout(() => {
   if(!localStorage.getItem('installDismissed')) {
-    setTimeout(() => installBanner.style.display = 'flex', 3000);
+    installBanner.style.display = 'flex';
+  }
+}, 3000);
   }
 });
 
